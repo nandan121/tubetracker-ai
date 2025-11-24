@@ -9,13 +9,14 @@ import { Layout, Calendar, RefreshCw, LogOut, Zap } from 'lucide-react';
 import { appConfig } from './config';
 
 const STORAGE_KEY_CHANNELS = 'tubetracker_channels_v2';
+const STORAGE_KEY_SEARCH_STATE = 'tubetracker_search_state_v1';
 
 export default function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [channels, setChannels] = useState<Channel[]>([]);
   const [config, setConfig] = useState<AppConfig>({ daysBack: 1 });
   const [isResolvingConfig, setIsResolvingConfig] = useState(false);
-  
+
   const [searchState, setSearchState] = useState<SearchState>({
     isLoading: false,
     error: null,
@@ -48,6 +49,34 @@ export default function App() {
     localStorage.setItem(STORAGE_KEY_CHANNELS, JSON.stringify(channels));
   }, [channels]);
 
+  // Load search state from local storage on mount
+  useEffect(() => {
+    const savedSearchState = localStorage.getItem(STORAGE_KEY_SEARCH_STATE);
+    if (savedSearchState) {
+      try {
+        const parsed = JSON.parse(savedSearchState);
+        setSearchState(prev => ({
+          ...prev,
+          lastUpdated: parsed.lastUpdated,
+          videos: parsed.videos
+        }));
+      } catch (e) {
+        console.error("Failed to parse saved search state");
+      }
+    }
+  }, []);
+
+  // Save search state to local storage
+  useEffect(() => {
+    if (searchState.lastUpdated) {
+      const stateToSave = {
+        lastUpdated: searchState.lastUpdated,
+        videos: searchState.videos
+      };
+      localStorage.setItem(STORAGE_KEY_SEARCH_STATE, JSON.stringify(stateToSave));
+    }
+  }, [searchState.lastUpdated, searchState.videos]);
+
   // Handle Config File Processing
   useEffect(() => {
     const processConfig = async () => {
@@ -56,21 +85,21 @@ export default function App() {
       if (appConfig.defaultChannels.length === 0) return;
 
       const missingChannels = appConfig.defaultChannels.filter(configItem => {
-         return !channels.some(c => c.id === configItem || c.name.toLowerCase() === configItem.toLowerCase());
+        return !channels.some(c => c.id === configItem || c.name.toLowerCase() === configItem.toLowerCase());
       });
 
       if (missingChannels.length === 0) return;
 
       const configLoaded = localStorage.getItem('tubetracker_config_loaded_v2');
       if (configLoaded === 'true' && missingChannels.length === 0) {
-          return; 
+        return;
       }
 
       setIsResolvingConfig(true);
       try {
         // We no longer pass an API key, the service handles it via headers/proxy
         const resolved = await resolveConfigChannels(missingChannels);
-        
+
         setChannels(prev => {
           const newSet = [...prev];
           resolved.forEach(r => {
@@ -80,7 +109,7 @@ export default function App() {
           });
           return newSet;
         });
-        
+
         localStorage.setItem('tubetracker_config_loaded_v2', 'true');
       } catch (e) {
         console.error("Error processing config channels", e);
@@ -99,7 +128,7 @@ export default function App() {
     }
 
     const newChannel = await searchChannel(name);
-    
+
     if (channels.some(c => c.id === newChannel.id)) {
       throw new Error("Channel already added");
     }
@@ -139,17 +168,17 @@ export default function App() {
   };
 
   const handleAuth = () => {
-      setIsAuthenticated(true);
+    setIsAuthenticated(true);
   };
 
   const handleLogout = () => {
     localStorage.removeItem('tubetracker_auth_pin');
     setIsAuthenticated(false);
     setSearchState({
-        isLoading: false,
-        error: null,
-        lastUpdated: null,
-        videos: []
+      isLoading: false,
+      error: null,
+      lastUpdated: null,
+      videos: []
     });
   };
 
@@ -170,14 +199,14 @@ export default function App() {
             </div>
             <h1 className="text-xl font-bold tracking-tight text-white">TubeTracker</h1>
           </div>
-          
+
           <div className="flex items-center gap-4">
             <div className="text-sm text-gray-400 hidden sm:block">
               {searchState.lastUpdated && (
                 <span>Updated: {new Date(searchState.lastUpdated).toLocaleTimeString()}</span>
               )}
             </div>
-            <button 
+            <button
               onClick={handleLogout}
               className="p-2 hover:bg-gray-700 rounded-full transition-colors text-gray-400 hover:text-white"
               title="Logout / Lock"
@@ -189,18 +218,18 @@ export default function App() {
       </header>
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-          
+        <div className="clearfix">
+
           {/* Sidebar / Controls */}
-          <div className="lg:col-span-4 xl:col-span-3 space-y-6">
-            
+          <div className="w-full lg:w-1/4 lg:float-left lg:mr-6 mb-6 space-y-6">
+
             {/* Search Controls */}
             <div className="bg-gray-800 rounded-xl p-5 border border-gray-700 shadow-sm">
               <h2 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-4 flex items-center gap-2">
                 <Calendar className="w-4 h-4" />
                 Time Range
               </h2>
-              
+
               <div className="mb-6">
                 <div className="flex justify-between text-sm mb-2 text-gray-300">
                   <span>Look back:</span>
@@ -209,7 +238,7 @@ export default function App() {
                 <input
                   type="range"
                   min="1"
-                  max="30" 
+                  max="30"
                   value={config.daysBack}
                   onChange={(e) => setConfig({ ...config, daysBack: parseInt(e.target.value) })}
                   className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-red-600"
@@ -230,12 +259,12 @@ export default function App() {
                   )}
                   {searchState.isLoading ? 'Scanning...' : 'Scan for Videos'}
                 </button>
-                
+
                 {channels.length > 0 && (
-                   <div className="flex items-center justify-center gap-1 text-xs text-gray-500">
-                     <Zap className="w-3 h-3 text-yellow-500" />
-                     <span>Est. Cost: <span className="text-gray-300 font-medium">{estimatedCost} units</span></span>
-                   </div>
+                  <div className="flex items-center justify-center gap-1 text-xs text-gray-500">
+                    <Zap className="w-3 h-3 text-yellow-500" />
+                    <span>Est. Cost: <span className="text-gray-300 font-medium">{estimatedCost} units</span></span>
+                  </div>
                 )}
               </div>
             </div>
@@ -243,10 +272,10 @@ export default function App() {
             {/* Config Loading State */}
             {isResolvingConfig && (
               <div className="bg-blue-900/20 border border-blue-800 p-3 rounded-lg flex items-center gap-3 animate-pulse">
-                 <div className="animate-spin text-blue-400"><RefreshCw className="w-4 h-4" /></div>
-                 <div className="flex flex-col">
-                   <span className="text-sm text-blue-200 font-medium">Syncing Config...</span>
-                 </div>
+                <div className="animate-spin text-blue-400"><RefreshCw className="w-4 h-4" /></div>
+                <div className="flex flex-col">
+                  <span className="text-sm text-blue-200 font-medium">Syncing Config...</span>
+                </div>
               </div>
             )}
 
@@ -262,7 +291,7 @@ export default function App() {
           </div>
 
           {/* Main Feed */}
-          <div className="lg:col-span-8 xl:col-span-9">
+          <div className="">
             {searchState.error && (
               <div className="bg-red-900/20 border border-red-800 text-red-200 p-4 rounded-xl mb-6 flex items-start gap-3">
                 <div className="mt-1">
@@ -275,14 +304,14 @@ export default function App() {
               </div>
             )}
 
-            <div className="mb-4 flex items-center justify-between">
+            <div className="mb-4 flex items-center justify-between px-2">
               <h2 className="text-2xl font-bold text-white">Latest Uploads</h2>
               <div className="text-sm text-gray-500">
                 Found {searchState.videos.length} videos
               </div>
             </div>
 
-            <VideoList 
+            <VideoList
               videos={searchState.videos}
               isLoading={searchState.isLoading}
               hasSearched={searchState.lastUpdated !== null}
