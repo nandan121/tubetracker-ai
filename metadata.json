@@ -1,0 +1,5 @@
+{
+  "name": "TubeTracker AI",
+  "description": "Monitor recent uploads from your favorite YouTube channels using AI-powered search grounding. Includes access protection and customizable search windows.",
+  "requestFramePermissions": []
+}
