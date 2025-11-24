@@ -29,5 +29,12 @@ export const appConfig: ConfigFile = {
     "UCDq7SjbgRKty5TgGafW8Clg",
     "UCawZsQWqfGSbCI5yjkdVkTA",
     "UCpWS2Gmt0N31th-vdIizPJQ",
+    "UCflFbG9kh5ZRcVl1TvzDCPw",
+    "UCIgnGlGkVRhd4qNFcEwLL4A",
+    "UCqcbQf6yw5KzRoDDcZ_wBSw",
+    "UCfI2Wf-yji9reXIhn8U4jkQ",
+    "UC0FBv8ckxw1hrZxbUm3G7hA",
+    "UCwSozl89jl2zUDzQ4jGJD3g",
+    "UC2WmuBuFq6gL08QYG-JjXKw",
   ]
 };
