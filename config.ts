@@ -1,38 +1,26 @@
+
 import { ConfigFile } from "./types";
 
 /**
  * CONFIGURATION FILE
  * ------------------
  * 
+ * SECURITY NOTE:
+ * The API KEY and AUTH PIN are now managed entirely by the server (Vercel).
+ * Do NOT put them in this file.
+ * 
+ * 1. Go to Vercel Project Settings > Environment Variables.
+ * 2. Add 'API_KEY' (Your Google Cloud YouTube Data API Key).
+ * 3. Add 'AUTH_PIN' (The PIN you want to use to unlock the app).
+ * 
  * USEFUL LINKS (For your notes):
  * - Credentials: https://console.cloud.google.com/apis/credentials?project=foraiyoutubeaggeratorns
  * - Quotas: https://console.cloud.google.com/apis/api/youtube.googleapis.com/quotas?project=foraiyoutubeaggeratorns
- * 
- * DEPLOYMENT INSTRUCTIONS:
- * 1. PUBLIC REPO (Vercel/Netlify):
- *    - Leave 'apiKey' and 'authPin' as empty strings below.
- *    - Go to your Vercel Project Settings > Environment Variables.
- *    - Add 'API_KEY' with your Google Key.
- *    - Add 'AUTH_PIN' with your desired numeric pin (e.g. "1234").
- * 
- * 2. LOCAL DEV / PRIVATE REPO:
- *    - You can hardcode the strings below if you want.
  */
 
 export const appConfig: ConfigFile = {
-  // 1. API KEY
-  // Uses Environment Variable first. If missing, checks the hardcoded string.
-  apiKey: process.env.API_KEY || "", 
-  
-  // 2. PIN SETTINGS
-  requirePin: true, 
-  
-  // 3. AUTH PIN
-  // Uses Environment Variable first. If missing, checks the hardcoded string.
-  // If BOTH are empty, the app defaults to "Browser Setup Mode" (User creates PIN in browser).
-  authPin: process.env.AUTH_PIN || "", 
-  
-  // 4. CHANNELS
+  // CHANNELS
+  // These are the default channels that load when you open the app.
   defaultChannels: [
     "UCpV_X0VrL8-jg3t6wYGS-1g",
     "UChpleBmo18P08aKCIgti38g",

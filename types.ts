@@ -29,8 +29,5 @@ export interface AppConfig {
 }
 
 export interface ConfigFile {
-  apiKey: string;
-  requirePin: boolean; 
-  authPin?: string; // Optional hardcoded PIN for private deployments
   defaultChannels: string[];
 }

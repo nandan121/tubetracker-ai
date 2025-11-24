@@ -5,14 +5,13 @@ import { ChannelManager } from './components/ChannelManager';
 import { VideoList } from './components/VideoList';
 import { fetchRecentVideos, searchChannel, resolveConfigChannels } from './services/geminiService';
 import { Channel, SearchState, AppConfig } from './types';
-import { Layout, Calendar, RefreshCw, LogOut, DownloadCloud, Zap } from 'lucide-react';
+import { Layout, Calendar, RefreshCw, LogOut, Zap } from 'lucide-react';
 import { appConfig } from './config';
 
 const STORAGE_KEY_CHANNELS = 'tubetracker_channels_v2';
 
 export default function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [customApiKey, setCustomApiKey] = useState<string>('');
   const [channels, setChannels] = useState<Channel[]>([]);
   const [config, setConfig] = useState<AppConfig>({ daysBack: 1 });
   const [isResolvingConfig, setIsResolvingConfig] = useState(false);
@@ -24,12 +23,10 @@ export default function App() {
     videos: []
   });
 
-  // Auto-login check
+  // Check if we have a PIN stored already
   useEffect(() => {
-    // ONLY auto-login if apiKey exists AND requirePin is false
-    // If authPin is set, we NEVER auto-login, we force the AuthScreen
-    if (appConfig.apiKey && appConfig.apiKey.length > 10 && appConfig.requirePin === false && !appConfig.authPin) {
-      setCustomApiKey(appConfig.apiKey);
+    const pin = localStorage.getItem('tubetracker_auth_pin');
+    if (pin) {
       setIsAuthenticated(true);
     }
   }, []);
@@ -54,27 +51,25 @@ export default function App() {
   // Handle Config File Processing
   useEffect(() => {
     const processConfig = async () => {
-      if (!isAuthenticated || !customApiKey || isResolvingConfig) return;
+      // Only run if authenticated and not already running
+      if (!isAuthenticated || isResolvingConfig) return;
       if (appConfig.defaultChannels.length === 0) return;
 
-      // Filter out channels we already have (by ID)
       const missingChannels = appConfig.defaultChannels.filter(configItem => {
-         // Check if this config item (which might be an ID or a Name) matches any existing channel ID
-         // OR if the user already added it manually by name
          return !channels.some(c => c.id === configItem || c.name.toLowerCase() === configItem.toLowerCase());
       });
 
       if (missingChannels.length === 0) return;
 
       const configLoaded = localStorage.getItem('tubetracker_config_loaded_v2');
-      // If we haven't loaded config this session, or if we have missing channels that are in config
       if (configLoaded === 'true' && missingChannels.length === 0) {
           return; 
       }
 
       setIsResolvingConfig(true);
       try {
-        const resolved = await resolveConfigChannels(missingChannels, customApiKey);
+        // We no longer pass an API key, the service handles it via headers/proxy
+        const resolved = await resolveConfigChannels(missingChannels);
         
         setChannels(prev => {
           const newSet = [...prev];
@@ -89,21 +84,21 @@ export default function App() {
         localStorage.setItem('tubetracker_config_loaded_v2', 'true');
       } catch (e) {
         console.error("Error processing config channels", e);
+        // If it was an auth error (401), we might want to log out, but let's be gentle here
       } finally {
         setIsResolvingConfig(false);
       }
     };
 
     processConfig();
-  }, [isAuthenticated, customApiKey]);
+  }, [isAuthenticated]);
 
-  // Async add channel by resolving it via YouTube API
   const handleAddChannel = async (name: string) => {
     if (channels.some(c => c.name.toLowerCase() === name.toLowerCase())) {
       throw new Error("Channel already added");
     }
 
-    const newChannel = await searchChannel(name, customApiKey);
+    const newChannel = await searchChannel(name);
     
     if (channels.some(c => c.id === newChannel.id)) {
       throw new Error("Channel already added");
@@ -122,7 +117,7 @@ export default function App() {
     setSearchState(prev => ({ ...prev, isLoading: true, error: null }));
 
     try {
-      const videos = await fetchRecentVideos(channels, config.daysBack, customApiKey);
+      const videos = await fetchRecentVideos(channels, config.daysBack);
 
       setSearchState({
         isLoading: false,
@@ -131,6 +126,10 @@ export default function App() {
         videos: videos
       });
     } catch (err: any) {
+      // If error is authentication related, force logout
+      if (err.message.includes("Invalid PIN")) {
+        handleLogout();
+      }
       setSearchState(prev => ({
         ...prev,
         isLoading: false,
@@ -139,14 +138,12 @@ export default function App() {
     }
   };
 
-  const handleAuth = (key?: string) => {
-      if (key) {
-          setCustomApiKey(key);
-      }
+  const handleAuth = () => {
       setIsAuthenticated(true);
   };
 
   const handleLogout = () => {
+    localStorage.removeItem('tubetracker_auth_pin');
     setIsAuthenticated(false);
     setSearchState({
         isLoading: false,
@@ -160,11 +157,7 @@ export default function App() {
     return <AuthScreen onAuthenticated={handleAuth} />;
   }
 
-  // Calculate estimated quota cost
-  // 1 unit per channel scan (since we use playlistItems)
   const estimatedCost = channels.length;
-  // Daily free quota is usually 10,000
-  const quotaPercent = (estimatedCost / 10000) * 100;
 
   return (
     <div className="min-h-screen bg-gray-900 text-gray-100 font-sans">
@@ -222,9 +215,6 @@ export default function App() {
                   className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-red-600"
                   disabled={searchState.isLoading}
                 />
-                <p className="text-xs text-gray-500 mt-2">
-                  Finds videos uploaded within this window.
-                </p>
               </div>
 
               <div className="space-y-3">
@@ -241,11 +231,10 @@ export default function App() {
                   {searchState.isLoading ? 'Scanning...' : 'Scan for Videos'}
                 </button>
                 
-                {/* Cost Estimator */}
                 {channels.length > 0 && (
-                   <div className="flex items-center justify-center gap-1 text-xs text-gray-500" title="Based on standard YouTube Data API pricing">
+                   <div className="flex items-center justify-center gap-1 text-xs text-gray-500">
                      <Zap className="w-3 h-3 text-yellow-500" />
-                     <span>Est. Cost: <span className="text-gray-300 font-medium">{estimatedCost} units</span> (Daily Limit: 10,000)</span>
+                     <span>Est. Cost: <span className="text-gray-300 font-medium">{estimatedCost} units</span></span>
                    </div>
                 )}
               </div>
@@ -257,7 +246,6 @@ export default function App() {
                  <div className="animate-spin text-blue-400"><RefreshCw className="w-4 h-4" /></div>
                  <div className="flex flex-col">
                    <span className="text-sm text-blue-200 font-medium">Syncing Config...</span>
-                   <span className="text-xs text-blue-400">Resolving channel IDs</span>
                  </div>
               </div>
             )}
