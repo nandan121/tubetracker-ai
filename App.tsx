@@ -10,6 +10,7 @@ import { appConfig } from './config';
 const STORAGE_KEY_CHANNELS = 'tubetracker_channels_v2';
 const STORAGE_KEY_SEARCH_STATE = 'tubetracker_search_state_v1';
 const STORAGE_KEY_CONFIG = 'tubetracker_config_v2';
+const DATA_VERSION = '2'; // Increment when VideoResult structure changes
 
 export default function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -31,6 +32,16 @@ export default function App() {
     lastUpdated: null,
     videos: []
   });
+
+  // Clear old cached data if structure has changed
+  useEffect(() => {
+    const savedVersion = localStorage.getItem('tubetracker_data_version');
+    if (savedVersion !== DATA_VERSION) {
+      console.log('Data structure updated - clearing old cached videos');
+      localStorage.removeItem(STORAGE_KEY_SEARCH_STATE);
+      localStorage.setItem('tubetracker_data_version', DATA_VERSION);
+    }
+  }, []);
 
   // Check if we have a PIN stored already
   useEffect(() => {

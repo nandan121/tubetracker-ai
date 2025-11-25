@@ -27,16 +27,48 @@ Thanks to [Google AI Studio - Gemini 3 Pro](https://aistudio.google.com/apps/dri
 
 ## Run Locally
 
+This app uses Vercel serverless functions, so you need to use the **Vercel CLI** for local development.
+
 **Prerequisites:** Node.js
 
-1.  Install dependencies:
-    ```bash
-    npm install
-    ```
-2.  Run the app:
-    ```bash
-    npm run dev
-    ```
+### 1. Install Dependencies
+```bash
+npm install
+```
+
+### 2. Install Vercel CLI (globally)
+```bash
+npm install -g vercel
+```
+
+### 3. Set Up Environment Variables
+
+Create a `.env` file in the root directory:
+```bash
+API_KEY=your_youtube_api_key_here
+AUTH_PIN=your_pin_here
+```
+
+> **Note:** If you link to your Vercel project (next step), it will use environment variables from Vercel's cloud settings instead of `.env`. The local `.env` file only works if you run `vercel dev --no-link`.
+
+### 4. Run Development Server
+```bash
+vercel dev
+```
+
+The first time you run this, Vercel will ask:
+- **Sign in** to Vercel (opens browser)
+- **Link to existing project?** → Choose your tubetracker-ai project (or say "no" for local-only development)
+
+The app will be available at `http://localhost:3000`
+
+### 5. Development Tips
+
+- **Hot reload**: Changes to `.tsx`, `.ts`, `.css` files automatically update the browser
+- **API routes**: The `/api/youtube` serverless function runs automatically with `vercel dev`
+- **Don't use `npm run dev`**: It only runs the frontend without the API routes
+
+---
 
 ## Get Channel IDs
 
