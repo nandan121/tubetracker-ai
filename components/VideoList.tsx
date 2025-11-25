@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { ExternalLink, PlayCircle, Clock, Calendar } from 'lucide-react';
+import { ExternalLink, PlayCircle, Clock, Calendar, Eye } from 'lucide-react';
 import { VideoResult } from '../types';
 
 interface VideoListProps {
@@ -31,6 +31,39 @@ const timeAgo = (dateString: string) => {
   if (interval > 1) return Math.floor(interval) + " minutes ago";
 
   return Math.floor(seconds) + " seconds ago";
+};
+
+// Parse ISO 8601 duration (e.g. PT15M33S -> 15:33)
+const parseDuration = (duration?: string): string | null => {
+  if (!duration) return null;
+
+  const match = duration.match(/PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/);
+  if (!match) return null;
+
+  const hours = parseInt(match[1] || '0');
+  const minutes = parseInt(match[2] || '0');
+  const seconds = parseInt(match[3] || '0');
+
+  if (hours > 0) {
+    return `${hours}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+  }
+  return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+};
+
+// Format view count (e.g. 1234567 -> 1.2M)
+const formatViewCount = (count?: string): string | null => {
+  if (!count) return null;
+
+  const num = parseInt(count);
+  if (isNaN(num)) return null;
+
+  if (num >= 1000000) {
+    return (num / 1000000).toFixed(1) + 'M';
+  }
+  if (num >= 1000) {
+    return (num / 1000).toFixed(1) + 'K';
+  }
+  return num.toString();
 };
 
 export const VideoList: React.FC<VideoListProps> = ({ videos, isLoading, hasSearched }) => {
@@ -86,7 +119,14 @@ export const VideoList: React.FC<VideoListProps> = ({ videos, isLoading, hasSear
               )}
               <div className="absolute inset-0 bg-gradient-to-t from-gray-900/90 via-transparent to-transparent opacity-60"></div>
 
-              {/* Date Badge */}
+              {/* Duration Badge (bottom-left) */}
+              {parseDuration(video.duration) && (
+                <div className="absolute bottom-2 left-2 bg-black/90 text-white text-xs font-semibold px-2 py-1 rounded backdrop-blur-sm">
+                  {parseDuration(video.duration)}
+                </div>
+              )}
+
+              {/* Date Badge (bottom-right) */}
               <div className="absolute bottom-2 right-2 bg-black/80 text-white text-xs px-2 py-1 rounded flex items-center gap-1 backdrop-blur-sm">
                 <Clock className="w-3 h-3 text-red-400" />
                 {timeAgo(video.publishedAt)}
@@ -98,11 +138,17 @@ export const VideoList: React.FC<VideoListProps> = ({ videos, isLoading, hasSear
                 {video.title}
               </h3>
 
-              <div className="mt-auto pt-3 border-t border-gray-100 dark:border-gray-700/50 flex items-center justify-between">
-                <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300">
-                  <span className="font-medium truncate max-w-[150px]">{video.channelName}</span>
+              <div className="mt-auto pt-3 border-t border-gray-100 dark:border-gray-700/50 space-y-2">
+                <div className="flex items-center justify-between text-sm">
+                  <span className="font-medium text-gray-600 dark:text-gray-300 truncate max-w-[150px]">{video.channelName}</span>
+                  <ExternalLink className="w-4 h-4 text-gray-400 dark:text-gray-500 group-hover:text-gray-900 dark:group-hover:text-white transition-colors shrink-0" />
                 </div>
-                <ExternalLink className="w-4 h-4 text-gray-400 dark:text-gray-500 group-hover:text-gray-900 dark:group-hover:text-white transition-colors" />
+                {formatViewCount(video.viewCount) && (
+                  <div className="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400">
+                    <Eye className="w-3 h-3" />
+                    <span>{formatViewCount(video.viewCount)} views</span>
+                  </div>
+                )}
               </div>
             </div>
           </a>

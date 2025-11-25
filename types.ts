@@ -15,6 +15,8 @@ export interface VideoResult {
   publishedAt: string; // ISO string
   thumbnail: string;
   description: string;
+  duration?: string; // ISO 8601 duration (e.g. PT15M33S)
+  viewCount?: string;
 }
 
 export interface SearchState {

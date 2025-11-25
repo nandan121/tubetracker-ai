@@ -189,6 +189,49 @@ export const fetchRecentVideos = async (
 
   await Promise.all(promises);
 
+  // Fetch duration and view counts for all found videos
+  // We do this in batches of 50 to minimize API calls
+  const videoIds = allVideos.map(v => v.id);
+  if (videoIds.length > 0) {
+    const stats: Record<string, { duration: string, viewCount: string }> = {};
+    
+    // Chunk into 50s
+    for (let i = 0; i < videoIds.length; i += 50) {
+      const chunk = videoIds.slice(i, i + 50);
+      try {
+        const params = new URLSearchParams({
+          endpoint: 'videos',
+          part: 'contentDetails,statistics',
+          id: chunk.join(',')
+        });
+
+        const data = await handleResponse(
+          await fetch(`${API_PROXY_URL}?${params.toString()}`, { headers: getAuthHeaders() }),
+          'fetchVideoStats'
+        );
+
+        if (data.items) {
+          data.items.forEach((item: any) => {
+            stats[item.id] = {
+              duration: item.contentDetails?.duration,
+              viewCount: item.statistics?.viewCount
+            };
+          });
+        }
+      } catch (e) {
+        console.warn("Failed to fetch video stats chunk", e);
+      }
+    }
+
+    // Merge stats into video objects
+    allVideos.forEach(v => {
+      if (stats[v.id]) {
+        v.duration = stats[v.id].duration;
+        v.viewCount = stats[v.id].viewCount;
+      }
+    });
+  }
+
   if (allVideos.length === 0 && errors.length === channels.length) {
      // Check if it's an auth error (likely first error)
      if (errors[0].includes("Invalid PIN")) {
