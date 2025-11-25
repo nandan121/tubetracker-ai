@@ -36,6 +36,7 @@ export const appConfig: ConfigFile = {
     "UC0FBv8ckxw1hrZxbUm3G7hA",
     "UCwSozl89jl2zUDzQ4jGJD3g",
     "UC2WmuBuFq6gL08QYG-JjXKw",
+	"UCYEHmQ-b1iC02-LMeseQsvw",
   ],
   defaultLookbackDays: 5,
   defaultAutoRefreshHours: 12,
