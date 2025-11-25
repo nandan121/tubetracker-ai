@@ -11,7 +11,7 @@ const PIN_STORAGE_KEY = 'tubetracker_auth_pin';
 export const AuthScreen: React.FC<AuthScreenProps> = ({ onAuthenticated }) => {
   const [pin, setPin] = useState('');
   const [showPin, setShowPin] = useState(false);
-  
+
   useEffect(() => {
     const storedPin = localStorage.getItem(PIN_STORAGE_KEY);
     // If a PIN is already stored, we try to use it immediately.
@@ -26,31 +26,31 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onAuthenticated }) => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (pin.length < 1) return;
-    
+
     // Save PIN to local storage so the Service can grab it for headers
     localStorage.setItem(PIN_STORAGE_KEY, pin);
-    
+
     // We assume it's valid for now. If the first API call fails with 401, 
     // the main App will handle the error.
     onAuthenticated();
   };
 
   return (
-    <div className="min-h-screen bg-gray-900 flex flex-col items-center justify-center p-4">
-      <div className="bg-gray-800 p-8 rounded-2xl shadow-2xl border border-gray-700 w-full max-w-md">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex flex-col items-center justify-center p-4 transition-colors">
+      <div className="bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-700 w-full max-w-md">
         <div className="flex flex-col items-center mb-6">
           <div className="bg-red-600 p-4 rounded-full mb-4 shadow-lg shadow-red-900/50">
-             <Youtube className="w-8 h-8 text-white" />
+            <Youtube className="w-8 h-8 text-white" />
           </div>
-          <h1 className="text-2xl font-bold text-white">TubeTracker AI</h1>
-          <p className="text-gray-400 text-sm mt-2">
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">TubeTracker AI</h1>
+          <p className="text-gray-500 dark:text-gray-400 text-sm mt-2">
             Enter PIN to access secure dashboard
           </p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Access PIN
             </label>
             <div className="relative">
@@ -58,11 +58,11 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onAuthenticated }) => {
                 type={showPin ? "text" : "password"}
                 value={pin}
                 onChange={(e) => setPin(e.target.value)}
-                className="w-full bg-gray-900 border border-gray-600 rounded-lg px-4 py-3 text-center text-xl tracking-widest text-white focus:ring-2 focus:ring-red-500 focus:border-transparent outline-none transition-all placeholder-gray-700"
+                className="w-full bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-3 text-center text-xl tracking-widest text-gray-900 dark:text-white focus:ring-2 focus:ring-red-500 focus:border-transparent outline-none transition-all placeholder-gray-400 dark:placeholder-gray-700"
                 placeholder="Enter PIN"
                 required
               />
-              <button 
+              <button
                 type="button"
                 onClick={() => setShowPin(!showPin)}
                 className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-300"
@@ -80,8 +80,8 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onAuthenticated }) => {
             Unlock Dashboard
           </button>
         </form>
-        
-        <div className="mt-6 text-center text-xs text-gray-500">
+
+        <div className="mt-6 text-center text-xs text-gray-500 dark:text-gray-500">
           <p>Secure Connection • Server-Side Validation</p>
         </div>
       </div>

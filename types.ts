@@ -26,8 +26,13 @@ export interface SearchState {
 
 export interface AppConfig {
   daysBack: number;
+  autoRefreshHours: number;
+  theme: 'dark' | 'light';
 }
 
 export interface ConfigFile {
   defaultChannels: string[];
+  defaultLookbackDays: number;
+  defaultAutoRefreshHours: number;
+  defaultTheme: 'dark' | 'light';
 }
