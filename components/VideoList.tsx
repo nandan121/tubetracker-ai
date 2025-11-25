@@ -35,19 +35,30 @@ const timeAgo = (dateString: string) => {
 
 // Parse ISO 8601 duration (e.g. PT15M33S -> 15:33)
 const parseDuration = (duration?: string): string | null => {
-  if (!duration) return null;
+  console.log(`🎬 parseDuration called with: "${duration}"`);
+  if (!duration) {
+    console.log(`  ❌ No duration - returning null`);
+    return null;
+  }
 
   const match = duration.match(/PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/);
-  if (!match) return null;
+  if (!match) {
+    console.log(`  ❌ Regex didn't match`);
+    return null;
+  }
 
   const hours = parseInt(match[1] || '0');
   const minutes = parseInt(match[2] || '0');
   const seconds = parseInt(match[3] || '0');
 
+  let result;
   if (hours > 0) {
-    return `${hours}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+    result = `${hours}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+  } else {
+    result = `${minutes}:${seconds.toString().padStart(2, '0')}`;
   }
-  return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+  console.log(`  ✅ Result: "${result}"`);
+  return result;
 };
 
 // Format view count (e.g. 1234567 -> 1.2M)
@@ -67,6 +78,11 @@ const formatViewCount = (count?: string): string | null => {
 };
 
 export const VideoList: React.FC<VideoListProps> = ({ videos, isLoading, hasSearched }) => {
+  console.log(`📹 VideoList rendering ${videos.length} videos`);
+  videos.forEach((v, idx) => {
+    if (idx < 3) console.log(`  Video ${idx}: duration=${v.duration}, views=${v.viewCount}`);
+  });
+
   if (isLoading) {
     return (
       <div className="flex flex-col items-center justify-center h-64 text-gray-500 dark:text-gray-400 space-y-4">

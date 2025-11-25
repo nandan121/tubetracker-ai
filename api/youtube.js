@@ -17,9 +17,9 @@ export default async function handler(req, res) {
   }
 
   const { endpoint, ...queryParams } = req.query;
-  
+
   // Whitelist allowed endpoints for security
-  const allowedEndpoints = ['search', 'channels', 'playlistItems'];
+  const allowedEndpoints = ['search', 'channels', 'playlistItems', 'videos'];
   if (!allowedEndpoints.includes(endpoint)) {
     return res.status(400).json({ error: { message: "Invalid API Endpoint" } });
   }

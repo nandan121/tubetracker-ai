@@ -192,12 +192,16 @@ export const fetchRecentVideos = async (
   // Fetch duration and view counts for all found videos
   // We do this in batches of 50 to minimize API calls
   const videoIds = allVideos.map(v => v.id);
+  console.log(`📊 Fetching stats for ${videoIds.length} videos...`);
+  
   if (videoIds.length > 0) {
     const stats: Record<string, { duration: string, viewCount: string }> = {};
     
     // Chunk into 50s
     for (let i = 0; i < videoIds.length; i += 50) {
       const chunk = videoIds.slice(i, i + 50);
+      console.log(`🔄 Fetching stats for chunk ${Math.floor(i/50) + 1}: ${chunk.length} videos`);
+      
       try {
         const params = new URLSearchParams({
           endpoint: 'videos',
@@ -210,24 +214,38 @@ export const fetchRecentVideos = async (
           'fetchVideoStats'
         );
 
+        console.log(`✅ Stats API response:`, data);
+
         if (data.items) {
+          console.log(`📦 Processing ${data.items.length} items from stats API`);
           data.items.forEach((item: any) => {
+            const duration = item.contentDetails?.duration;
+            const viewCount = item.statistics?.viewCount;
+            console.log(`  Video ${item.id}: duration=${duration}, views=${viewCount}`);
+            
             stats[item.id] = {
-              duration: item.contentDetails?.duration,
-              viewCount: item.statistics?.viewCount
+              duration,
+              viewCount
             };
           });
+        } else {
+          console.warn("❌ No items in stats response");
         }
       } catch (e) {
-        console.warn("Failed to fetch video stats chunk", e);
+        console.error("❌ Failed to fetch video stats chunk", e);
       }
     }
+
+    console.log(`📊 Total stats collected:`, Object.keys(stats).length);
 
     // Merge stats into video objects
     allVideos.forEach(v => {
       if (stats[v.id]) {
         v.duration = stats[v.id].duration;
         v.viewCount = stats[v.id].viewCount;
+        console.log(`✅ Merged stats for "${v.title}": duration=${v.duration}, views=${v.viewCount}`);
+      } else {
+        console.warn(`⚠️ No stats found for video ${v.id}: "${v.title}"`);
       }
     });
   }
