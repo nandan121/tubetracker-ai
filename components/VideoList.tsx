@@ -16,21 +16,37 @@ const timeAgo = (dateString: string) => {
   const seconds = Math.floor((now.getTime() - date.getTime()) / 1000);
 
   let interval = seconds / 31536000;
-  if (interval > 1) return Math.floor(interval) + " years ago";
+  if (interval >= 1) {
+    const value = Math.floor(interval);
+    return value + (value === 1 ? " year ago" : " years ago");
+  }
 
   interval = seconds / 2592000;
-  if (interval > 1) return Math.floor(interval) + " months ago";
+  if (interval >= 1) {
+    const value = Math.floor(interval);
+    return value + (value === 1 ? " month ago" : " months ago");
+  }
 
   interval = seconds / 86400;
-  if (interval > 1) return Math.floor(interval) + " days ago";
+  if (interval >= 1) {
+    const value = Math.floor(interval);
+    return value + (value === 1 ? " day ago" : " days ago");
+  }
 
   interval = seconds / 3600;
-  if (interval > 1) return Math.floor(interval) + " hours ago";
+  if (interval >= 1) {
+    const value = Math.floor(interval);
+    return value + (value === 1 ? " hour ago" : " hours ago");
+  }
 
   interval = seconds / 60;
-  if (interval > 1) return Math.floor(interval) + " minutes ago";
+  if (interval >= 1) {
+    const value = Math.floor(interval);
+    return value + (value === 1 ? " minute ago" : " minutes ago");
+  }
 
-  return Math.floor(seconds) + " seconds ago";
+  const value = Math.floor(seconds);
+  return value + (value === 1 ? " second ago" : " seconds ago");
 };
 
 // Parse ISO 8601 duration (e.g. PT15M33S -> 15:33)
@@ -96,7 +112,7 @@ export const VideoList: React.FC<VideoListProps> = ({ videos, isLoading, hasSear
   return (
     <div className="-mx-2">
       {videos.map((video) => (
-        <div key={video.id} className="w-full md:w-1/2 lg:w-1/3 xl:w-1/4 inline-block align-top p-2">
+        <div key={video.id} className="w-full md:w-1/2 lg:w-1/3 xl:w-1/4 inline-block align-top p-2 mb-5">
           <a
             href={video.url}
             target="_blank"
@@ -134,21 +150,23 @@ export const VideoList: React.FC<VideoListProps> = ({ videos, isLoading, hasSear
             </div>
 
             <div className="p-4 flex flex-col flex-1">
-              <h3 className="text-gray-900 dark:text-white font-semibold leading-snug mb-2 group-hover:text-red-600 dark:group-hover:text-red-400 transition-colors line-clamp-2" title={video.title}>
+              <h3 className="text-gray-900 dark:text-white font-semibold leading-snug group-hover:text-red-600 dark:group-hover:text-red-400 transition-colors line-clamp-2 min-h-11" title={video.title}>
                 {video.title}
               </h3>
 
-              <div className="mt-auto pt-3 border-t border-gray-100 dark:border-gray-700/50 space-y-2">
+              <div className="mt-auto pt-1 border-t border-gray-100 dark:border-gray-700/50">
                 <div className="flex items-center justify-between text-sm">
                   <span className="font-medium text-gray-600 dark:text-gray-300 truncate max-w-[150px]">{video.channelName}</span>
-                  <ExternalLink className="w-4 h-4 text-gray-400 dark:text-gray-500 group-hover:text-gray-900 dark:group-hover:text-white transition-colors shrink-0" />
-                </div>
-                {formatViewCount(video.viewCount) && (
-                  <div className="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400">
-                    <Eye className="w-3 h-3" />
-                    <span>{formatViewCount(video.viewCount)} views</span>
+                  <div className="flex items-center gap-3">
+                    {formatViewCount(video.viewCount) && (
+                      <div className="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400">
+                        <Eye className="w-3 h-3" />
+                        <span>{formatViewCount(video.viewCount)} views</span>
+                      </div>
+                    )}
+                    <ExternalLink className="w-4 h-4 text-gray-400 dark:text-gray-500 group-hover:text-gray-900 dark:group-hover:text-white transition-colors shrink-0" />
                   </div>
-                )}
+                </div>
               </div>
             </div>
           </a>
