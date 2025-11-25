@@ -15,6 +15,7 @@ const DATA_VERSION = '2'; // Increment when VideoResult structure changes
 export default function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [channels, setChannels] = useState<Channel[]>([]);
+  const [channelsLoaded, setChannelsLoaded] = useState(false);
   const [isResolvingConfig, setIsResolvingConfig] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -25,6 +26,7 @@ export default function App() {
     autoRefreshHours: appConfig.defaultAutoRefreshHours || 12,
     theme: appConfig.defaultTheme || 'dark'
   });
+  const [configLoaded, setConfigLoaded] = useState(false);
 
   const [searchState, setSearchState] = useState<SearchState>({
     isLoading: false,
@@ -61,12 +63,15 @@ export default function App() {
         console.error("Failed to parse saved channels");
       }
     }
+    setChannelsLoaded(true);
   }, []);
 
   // Save channels to local storage
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEY_CHANNELS, JSON.stringify(channels));
-  }, [channels]);
+    if (channelsLoaded) {
+      localStorage.setItem(STORAGE_KEY_CHANNELS, JSON.stringify(channels));
+    }
+  }, [channels, channelsLoaded]);
 
   // Load config from local storage
   useEffect(() => {
@@ -79,12 +84,15 @@ export default function App() {
         console.error("Failed to parse saved config");
       }
     }
+    setConfigLoaded(true);
   }, []);
 
   // Save config to local storage
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEY_CONFIG, JSON.stringify(config));
-  }, [config]);
+    if (configLoaded) {
+      localStorage.setItem(STORAGE_KEY_CONFIG, JSON.stringify(config));
+    }
+  }, [config, configLoaded]);
 
   // Apply Theme
   useEffect(() => {
@@ -126,23 +134,51 @@ export default function App() {
   // Handle Config File Processing (Initial Channel Load)
   useEffect(() => {
     const processConfig = async () => {
-      if (!isAuthenticated || isResolvingConfig) return;
-      if (appConfig.defaultChannels.length === 0) return;
+      console.log("🔧 [Config Sync] Starting processConfig check...");
+
+      if (!isAuthenticated) {
+        console.log("🔧 [Config Sync] Not authenticated, skipping.");
+        return;
+      }
+      if (!channelsLoaded) {
+        console.log("🔧 [Config Sync] Channels not loaded from storage yet, skipping.");
+        return;
+      }
+      if (isResolvingConfig) {
+        console.log("🔧 [Config Sync] Already resolving, skipping.");
+        return;
+      }
+      if (appConfig.defaultChannels.length === 0) {
+        console.log("🔧 [Config Sync] No default channels in config, skipping.");
+        return;
+      }
+
+      console.log(`🔧 [Config Sync] Current channels in state: ${channels.length}`);
+      console.log(`🔧 [Config Sync] Default channels to check: ${appConfig.defaultChannels.length}`);
 
       const missingChannels = appConfig.defaultChannels.filter(configItem => {
         return !channels.some(c => c.id === configItem || c.name.toLowerCase() === configItem.toLowerCase());
       });
 
-      if (missingChannels.length === 0) return;
+      console.log(`🔧 [Config Sync] Missing channels found: ${missingChannels.length}`, missingChannels);
 
-      const configLoaded = localStorage.getItem('tubetracker_config_loaded_v2');
-      if (configLoaded === 'true' && missingChannels.length === 0) {
+      if (missingChannels.length === 0) {
+        console.log("🔧 [Config Sync] No missing channels, all good.");
         return;
       }
 
+      const configLoaded = localStorage.getItem('tubetracker_config_loaded_v2');
+      // Note: The original logic had a check here that was unreachable if missingChannels.length > 0
+      // We will proceed to resolve if there are missing channels.
+
+      console.log("🔧 [Config Sync] Resolving missing channels...");
       setIsResolvingConfig(true);
+      const startTime = Date.now();
+
       try {
         const resolved = await resolveConfigChannels(missingChannels);
+        console.log(`🔧 [Config Sync] Resolved ${resolved.length} channels in ${Date.now() - startTime}ms`);
+
         setChannels(prev => {
           const newSet = [...prev];
           resolved.forEach(r => {
@@ -154,14 +190,15 @@ export default function App() {
         });
         localStorage.setItem('tubetracker_config_loaded_v2', 'true');
       } catch (e) {
-        console.error("Error processing config channels", e);
+        console.error("🔧 [Config Sync] Error processing config channels", e);
       } finally {
         setIsResolvingConfig(false);
+        console.log("🔧 [Config Sync] Finished.");
       }
     };
 
     processConfig();
-  }, [isAuthenticated]);
+  }, [isAuthenticated, channels, channelsLoaded]); // Added channels and channelsLoaded to dependency array
 
   // Auto Refresh Logic
   useEffect(() => {
