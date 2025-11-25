@@ -5,6 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>TubeTracker AI</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        darkMode: 'class',
+      }
+    </script>
     <style>
       /* Custom scrollbar for dark mode aesthetics */
       ::-webkit-scrollbar {
@@ -12,14 +17,23 @@
         height: 8px;
       }
       ::-webkit-scrollbar-track {
-        background: #1f2937; 
+        background: #f3f4f6; /* gray-100 */
+      }
+      .dark ::-webkit-scrollbar-track {
+        background: #1f2937; /* gray-800 */
       }
       ::-webkit-scrollbar-thumb {
-        background: #4b5563; 
+        background: #d1d5db; /* gray-300 */
         border-radius: 4px;
       }
+      .dark ::-webkit-scrollbar-thumb {
+        background: #4b5563; /* gray-600 */
+      }
       ::-webkit-scrollbar-thumb:hover {
-        background: #6b7280; 
+        background: #9ca3af; /* gray-400 */
+      }
+      .dark ::-webkit-scrollbar-thumb:hover {
+        background: #6b7280; /* gray-500 */
       }
     </style>
   <script type="importmap">
@@ -35,7 +49,7 @@
 </script>
 <link rel="stylesheet" href="/index.css">
 </head>
-  <body class="bg-gray-900 text-white antialiased">
+  <body class="bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white antialiased transition-colors duration-200">
     <div id="root"></div>
   <script type="module" src="/index.tsx"></script>
 </body>

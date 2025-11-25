@@ -154,7 +154,19 @@ export default function App() {
 
   // Auto Refresh Logic
   useEffect(() => {
-    if (!isAuthenticated || searchState.isLoading || channels.length === 0 || !searchState.lastUpdated) return;
+    if (!isAuthenticated || searchState.isLoading || channels.length === 0) return;
+
+    const performScan = () => {
+      console.log("Auto-refreshing...");
+      handleScan();
+    };
+
+    if (!searchState.lastUpdated) {
+      // New browser case / fresh start: Always update
+      console.log("Fresh start detected. Auto-scanning...");
+      performScan();
+      return;
+    }
 
     const now = Date.now();
     const msSinceUpdate = now - searchState.lastUpdated;
@@ -162,9 +174,9 @@ export default function App() {
 
     if (hoursSinceUpdate > config.autoRefreshHours) {
       console.log(`Auto-refreshing: Last updated ${hoursSinceUpdate.toFixed(1)} hours ago (Limit: ${config.autoRefreshHours})`);
-      handleScan();
+      performScan();
     }
-  }, [isAuthenticated, searchState.lastUpdated, config.autoRefreshHours, channels.length]); // Intentionally omitting handleScan to avoid loops, though it's stable
+  }, [isAuthenticated, searchState.lastUpdated, config.autoRefreshHours, channels.length]); // Intentionally omitting handleScan to avoid loops
 
   const handleAddChannel = async (name: string) => {
     if (channels.some(c => c.name.toLowerCase() === name.toLowerCase())) {
