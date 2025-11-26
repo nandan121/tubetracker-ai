@@ -4,7 +4,7 @@ import { Settings } from './components/Settings';
 import { VideoList } from './components/VideoList';
 import { fetchRecentVideos, searchChannel, resolveConfigChannels } from './services/geminiService';
 import { Channel, SearchState, AppConfig } from './types';
-import { Layout, Calendar, RefreshCw, LogOut, Zap, Settings as SettingsIcon, Search } from 'lucide-react';
+import { Layout, Calendar, RefreshCw, LogOut, Zap, Settings as SettingsIcon, Search, AlertCircle } from 'lucide-react';
 import { appConfig } from './config';
 
 const STORAGE_KEY_CHANNELS = 'tubetracker_channels_v3';
@@ -36,6 +36,7 @@ export default function App() {
     lastUpdated: null,
     videos: []
   });
+  const [channelsModified, setChannelsModified] = useState(false);
 
   // Clear old cached data if structure has changed
   useEffect(() => {
@@ -240,16 +241,19 @@ export default function App() {
       throw new Error("Channel already added");
     }
     setChannels(prev => [...prev, newChannel]);
+    setChannelsModified(true);
   };
 
   const handleRemoveChannel = (id: string) => {
     setChannels(channels.filter(c => c.id !== id));
+    setChannelsModified(true);
   };
 
   const handleScan = async () => {
     if (channels.length === 0) return;
 
     setSearchState(prev => ({ ...prev, isLoading: true, error: null }));
+    setChannelsModified(false); // Clear the notification when scan starts
 
     try {
       const videos = await fetchRecentVideos(channels, config.daysBack, config.debugLogging);
@@ -427,6 +431,19 @@ export default function App() {
                 <div>
                   <h3 className="font-semibold">Scan Error</h3>
                   <p className="text-sm opacity-90">{searchState.error}</p>
+                </div>
+              </div>
+            )}
+
+            {/* Channels Modified Notification */}
+            {channelsModified && (
+              <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 text-blue-700 dark:text-blue-200 p-4 rounded-xl flex items-start gap-3">
+                <div className="mt-1">
+                  <AlertCircle className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="font-semibold">Channels Updated</h3>
+                  <p className="text-sm opacity-90">Your tracked channels have changed. Click "Scan Now" to update the video list.</p>
                 </div>
               </div>
             )}

@@ -59,7 +59,7 @@ export const ChannelManager: React.FC<ChannelManagerProps> = ({ channels, onAdd,
               setNewChannel(e.target.value);
               setAddError(null);
             }}
-            placeholder="Channel Handle starting with @ (comma separated)..."
+            placeholder="Example: @handle1, @handle2, @handle3..."
             className={`flex-1 bg-gray-50 dark:bg-gray-900 border ${addError ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'} rounded-lg px-3 py-2 text-sm text-gray-900 dark:text-white focus:ring-1 focus:ring-red-500 focus:border-red-500 outline-none transition-colors`}
             disabled={disabled || isAdding}
           />
