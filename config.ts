@@ -24,7 +24,7 @@ export const appConfig: ConfigFile = {
   defaultChannels: [
     "@AICodeKing",
     "@mreflow",
-    "@matthew_berman",
+  /*  "@matthew_berman",
     "@codedigiptbiplab",
     "@theAIsearch",
     "@WesRoth",
@@ -43,7 +43,7 @@ export const appConfig: ConfigFile = {
     "@aiexplained-official",
     "@graceleungyl",
     "@TheAIAutomators",
-    "@airevolutionx",
+    "@airevolutionx", */
   ],
   defaultLookbackDays: 5,
   defaultAutoRefreshHours: 1,
