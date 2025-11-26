@@ -71,13 +71,7 @@ The app will be available at `http://localhost:3000`
 
 ---
 
-## Get Channel IDs
 
-To get the Channel ID from a YouTube handle (e.g., `@1littlecoder`), run the following command in your terminal:
-
-```bash
-echo 1littlecoder | xargs -I {} curl -s https://www.youtube.com/@{} | grep -o 'channel_id=[^"]*' | head -n 1 | sed 's/channel_id=//'
-```
 
 ## Deploy to Vercel
 

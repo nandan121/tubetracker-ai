@@ -42,78 +42,37 @@ const handleResponse = async (response: Response, context: string) => {
 };
 
 /**
- * Searches for a channel by name or ID via the Server Proxy.
+ * Searches for a channel by Handle via the Server Proxy.
+ * STRICTLY enforces usage of Handles (e.g. @channelname).
  */
 export const searchChannel = async (query: string, debug: boolean = false): Promise<Channel> => {
-  const isChannelId = query.startsWith('UC') && query.length > 18;
-  
-  let channelId = '';
-  let channelName = '';
-  let thumbnail = '';
-  let uploadsPlaylistId = '';
-
-  if (isChannelId) {
-    // === DIRECT LOOKUP ===
-    const params = new URLSearchParams({
-      endpoint: 'channels',
-      part: 'snippet,contentDetails',
-      id: query
-    });
-
-    const data = await handleResponse(
-      await fetch(`${API_PROXY_URL}?${params.toString()}`, { headers: getAuthHeaders(debug) }), 
-      'getChannelDirect'
-    );
-
-    if (!data.items || data.items.length === 0) {
-      throw new Error(`No channel found with ID "${query}"`);
-    }
-
-    const item = data.items[0];
-    channelId = item.id;
-    channelName = item.snippet.title;
-    thumbnail = item.snippet.thumbnails?.default?.url;
-    uploadsPlaylistId = item.contentDetails?.relatedPlaylists?.uploads;
-
-  } else {
-    // === SEARCH LOOKUP ===
-    // 1. Search for ID
-    const searchParams = new URLSearchParams({
-      endpoint: 'search',
-      part: 'snippet',
-      type: 'channel',
-      q: query,
-      maxResults: '1'
-    });
-
-    const searchData = await handleResponse(
-      await fetch(`${API_PROXY_URL}?${searchParams.toString()}`, { headers: getAuthHeaders(debug) }), 
-      'searchChannel'
-    );
-
-    if (!searchData.items || searchData.items.length === 0) {
-      throw new Error(`No channel found for "${query}"`);
-    }
-
-    const snippet = searchData.items[0].snippet;
-    channelId = snippet.channelId;
-    channelName = snippet.title;
-    thumbnail = snippet.thumbnails?.default?.url;
-
-    // 2. Get Details
-    const detailsParams = new URLSearchParams({
-      endpoint: 'channels',
-      part: 'contentDetails',
-      id: channelId
-    });
-
-    const channelData = await handleResponse(
-      await fetch(`${API_PROXY_URL}?${detailsParams.toString()}`, { headers: getAuthHeaders(debug) }), 
-      'getChannelDetails'
-    );
-
-    uploadsPlaylistId = channelData?.items?.[0]?.contentDetails?.relatedPlaylists?.uploads;
+  // Enforce Handle format
+  if (!query.startsWith('@')) {
+    throw new Error(`Invalid channel format: "${query}". Please use the channel handle (e.g. @channelname).`);
   }
+
+  // === DIRECT LOOKUP BY HANDLE ===
+  const params = new URLSearchParams({
+    endpoint: 'channels',
+    part: 'snippet,contentDetails',
+    forHandle: query.substring(1) // Remove the '@'
+  });
+
+  const data = await handleResponse(
+    await fetch(`${API_PROXY_URL}?${params.toString()}`, { headers: getAuthHeaders(debug) }),
+    'getChannelDirect'
+  );
+
+  if (!data.items || data.items.length === 0) {
+    throw new Error(`No channel found with handle "${query}"`);
+  }
+
+  const item = data.items[0];
+  const channelId = item.id;
+  const channelName = item.snippet.title;
+  const handle = item.snippet.customUrl || query; // Fallback to query if customUrl is missing (unlikely for handles)
+  const thumbnail = item.snippet.thumbnails?.default?.url;
+  const uploadsPlaylistId = item.contentDetails?.relatedPlaylists?.uploads;
 
   if (!uploadsPlaylistId) {
     throw new Error("Could not find uploads playlist for this channel.");
@@ -122,6 +81,7 @@ export const searchChannel = async (query: string, debug: boolean = false): Prom
   return {
     id: channelId,
     name: channelName,
+    handle: handle,
     thumbnail,
     uploadsPlaylistId
   };

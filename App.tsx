@@ -7,10 +7,11 @@ import { Channel, SearchState, AppConfig } from './types';
 import { Layout, Calendar, RefreshCw, LogOut, Zap, Settings as SettingsIcon, Search } from 'lucide-react';
 import { appConfig } from './config';
 
-const STORAGE_KEY_CHANNELS = 'tubetracker_channels_v2';
+const STORAGE_KEY_CHANNELS = 'tubetracker_channels_v3';
 const STORAGE_KEY_SEARCH_STATE = 'tubetracker_search_state_v1';
 const STORAGE_KEY_CONFIG = 'tubetracker_config_v2';
-const DATA_VERSION = '2'; // Increment when VideoResult structure changes
+const DATA_VERSION = '3'; // Increment when VideoResult structure changes
+const STORAGE_KEY_CONFIG_LOADED = 'tubetracker_config_loaded_v3';
 
 export default function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -42,6 +43,8 @@ export default function App() {
     if (savedVersion !== DATA_VERSION) {
       console.log('Data structure updated - clearing old cached videos');
       localStorage.removeItem(STORAGE_KEY_SEARCH_STATE);
+      localStorage.removeItem(STORAGE_KEY_CHANNELS);
+      localStorage.removeItem(STORAGE_KEY_CONFIG_LOADED);
       localStorage.setItem('tubetracker_data_version', DATA_VERSION);
     }
   }, []);
@@ -149,35 +152,35 @@ export default function App() {
         console.log("🔧 [Config Sync] Already resolving, skipping.");
         return;
       }
+
+      // 1. Check if we have already processed config for this version
+      const configAlreadyLoaded = localStorage.getItem(STORAGE_KEY_CONFIG_LOADED);
+      if (configAlreadyLoaded === 'true') {
+        console.log("🔧 [Config Sync] Config already loaded for this version. Skipping.");
+        return;
+      }
+
+      // 2. Check if we have channels in local storage
+      if (channels.length > 0) {
+        console.log("🔧 [Config Sync] Channels found in local storage. Using those and skipping config sync.");
+        // Mark as loaded so we don't check again
+        localStorage.setItem(STORAGE_KEY_CONFIG_LOADED, 'true');
+        return;
+      }
+
       if (appConfig.defaultChannels.length === 0) {
         console.log("🔧 [Config Sync] No default channels in config, skipping.");
+        localStorage.setItem(STORAGE_KEY_CONFIG_LOADED, 'true');
         return;
       }
 
-      console.log(`🔧 [Config Sync] Current channels in state: ${channels.length}`);
-      console.log(`🔧 [Config Sync] Default channels to check: ${appConfig.defaultChannels.length}`);
+      console.log(`🔧 [Config Sync] No local channels found. Resolving ${appConfig.defaultChannels.length} default channels...`);
 
-      const missingChannels = appConfig.defaultChannels.filter(configItem => {
-        return !channels.some(c => c.id === configItem || c.name.toLowerCase() === configItem.toLowerCase());
-      });
-
-      console.log(`🔧 [Config Sync] Missing channels found: ${missingChannels.length}`, missingChannels);
-
-      if (missingChannels.length === 0) {
-        console.log("🔧 [Config Sync] No missing channels, all good.");
-        return;
-      }
-
-      const configLoaded = localStorage.getItem('tubetracker_config_loaded_v2');
-      // Note: The original logic had a check here that was unreachable if missingChannels.length > 0
-      // We will proceed to resolve if there are missing channels.
-
-      console.log("🔧 [Config Sync] Resolving missing channels...");
       setIsResolvingConfig(true);
       const startTime = Date.now();
 
       try {
-        const resolved = await resolveConfigChannels(missingChannels, config.debugLogging);
+        const resolved = await resolveConfigChannels(appConfig.defaultChannels, config.debugLogging);
         console.log(`🔧 [Config Sync] Resolved ${resolved.length} channels in ${Date.now() - startTime}ms`);
 
         setChannels(prev => {
@@ -189,17 +192,18 @@ export default function App() {
           });
           return newSet;
         });
-        localStorage.setItem('tubetracker_config_loaded_v2', 'true');
       } catch (e) {
         console.error("🔧 [Config Sync] Error processing config channels", e);
       } finally {
+        // ALWAYS mark as loaded to prevent infinite loops, even if some failed
+        localStorage.setItem(STORAGE_KEY_CONFIG_LOADED, 'true');
         setIsResolvingConfig(false);
         console.log("🔧 [Config Sync] Finished.");
       }
     };
 
     processConfig();
-  }, [isAuthenticated, channels, channelsLoaded]); // Added channels and channelsLoaded to dependency array
+  }, [isAuthenticated, channels, channelsLoaded]);
 
   // Auto Refresh Logic
   useEffect(() => {
