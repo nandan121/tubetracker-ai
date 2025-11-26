@@ -4,12 +4,16 @@ import { VideoResult, Channel } from "../types";
 // We now point to our own Vercel API route, not Google directly
 const API_PROXY_URL = '/api/youtube';
 
-const getAuthHeaders = () => {
+const getAuthHeaders = (debug: boolean = false) => {
   const pin = localStorage.getItem('tubetracker_auth_pin') || '';
-  return {
+  const headers: Record<string, string> = {
     'x-auth-pin': pin,
     'Content-Type': 'application/json'
   };
+  if (debug) {
+    headers['x-debug-logging'] = 'true';
+  }
+  return headers;
 };
 
 // Helper to handle API errors
@@ -40,7 +44,7 @@ const handleResponse = async (response: Response, context: string) => {
 /**
  * Searches for a channel by name or ID via the Server Proxy.
  */
-export const searchChannel = async (query: string): Promise<Channel> => {
+export const searchChannel = async (query: string, debug: boolean = false): Promise<Channel> => {
   const isChannelId = query.startsWith('UC') && query.length > 18;
   
   let channelId = '';
@@ -57,7 +61,7 @@ export const searchChannel = async (query: string): Promise<Channel> => {
     });
 
     const data = await handleResponse(
-      await fetch(`${API_PROXY_URL}?${params.toString()}`, { headers: getAuthHeaders() }), 
+      await fetch(`${API_PROXY_URL}?${params.toString()}`, { headers: getAuthHeaders(debug) }), 
       'getChannelDirect'
     );
 
@@ -83,7 +87,7 @@ export const searchChannel = async (query: string): Promise<Channel> => {
     });
 
     const searchData = await handleResponse(
-      await fetch(`${API_PROXY_URL}?${searchParams.toString()}`, { headers: getAuthHeaders() }), 
+      await fetch(`${API_PROXY_URL}?${searchParams.toString()}`, { headers: getAuthHeaders(debug) }), 
       'searchChannel'
     );
 
@@ -104,7 +108,7 @@ export const searchChannel = async (query: string): Promise<Channel> => {
     });
 
     const channelData = await handleResponse(
-      await fetch(`${API_PROXY_URL}?${detailsParams.toString()}`, { headers: getAuthHeaders() }), 
+      await fetch(`${API_PROXY_URL}?${detailsParams.toString()}`, { headers: getAuthHeaders(debug) }), 
       'getChannelDetails'
     );
 
@@ -123,11 +127,11 @@ export const searchChannel = async (query: string): Promise<Channel> => {
   };
 };
 
-export const resolveConfigChannels = async (queries: string[]): Promise<Channel[]> => {
+export const resolveConfigChannels = async (queries: string[], debug: boolean = false): Promise<Channel[]> => {
   const results: Channel[] = [];
   for (const q of queries) {
     try {
-      const channel = await searchChannel(q);
+      const channel = await searchChannel(q, debug);
       results.push(channel);
     } catch (e) {
       console.warn(`Config: Failed to resolve channel '${q}'`, e);
@@ -138,7 +142,8 @@ export const resolveConfigChannels = async (queries: string[]): Promise<Channel[
 
 export const fetchRecentVideos = async (
   channels: Channel[], 
-  days: number
+  days: number,
+  debug: boolean = false
 ): Promise<VideoResult[]> => {
   if (channels.length === 0) return [];
 
@@ -158,7 +163,7 @@ export const fetchRecentVideos = async (
       });
 
       const data = await handleResponse(
-        await fetch(`${API_PROXY_URL}?${params.toString()}`, { headers: getAuthHeaders() }), 
+        await fetch(`${API_PROXY_URL}?${params.toString()}`, { headers: getAuthHeaders(debug) }), 
         `fetchVideos-${channel.name}`
       );
 
@@ -208,7 +213,7 @@ export const fetchRecentVideos = async (
         });
 
         const data = await handleResponse(
-          await fetch(`${API_PROXY_URL}?${params.toString()}`, { headers: getAuthHeaders() }),
+          await fetch(`${API_PROXY_URL}?${params.toString()}`, { headers: getAuthHeaders(debug) }),
           'fetchVideoStats'
         );
 

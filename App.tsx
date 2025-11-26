@@ -24,7 +24,8 @@ export default function App() {
   const [config, setConfig] = useState<AppConfig>({
     daysBack: appConfig.defaultLookbackDays || 5,
     autoRefreshHours: appConfig.defaultAutoRefreshHours || 12,
-    theme: appConfig.defaultTheme || 'dark'
+    theme: appConfig.defaultTheme || 'dark',
+    debugLogging: appConfig.defaultDebugLogging ?? true
   });
   const [configLoaded, setConfigLoaded] = useState(false);
 
@@ -176,7 +177,7 @@ export default function App() {
       const startTime = Date.now();
 
       try {
-        const resolved = await resolveConfigChannels(missingChannels);
+        const resolved = await resolveConfigChannels(missingChannels, config.debugLogging);
         console.log(`🔧 [Config Sync] Resolved ${resolved.length} channels in ${Date.now() - startTime}ms`);
 
         setChannels(prev => {
@@ -230,7 +231,7 @@ export default function App() {
     if (channels.some(c => c.name.toLowerCase() === name.toLowerCase())) {
       throw new Error("Channel already added");
     }
-    const newChannel = await searchChannel(name);
+    const newChannel = await searchChannel(name, config.debugLogging);
     if (channels.some(c => c.id === newChannel.id)) {
       throw new Error("Channel already added");
     }
@@ -247,7 +248,7 @@ export default function App() {
     setSearchState(prev => ({ ...prev, isLoading: true, error: null }));
 
     try {
-      const videos = await fetchRecentVideos(channels, config.daysBack);
+      const videos = await fetchRecentVideos(channels, config.daysBack, config.debugLogging);
 
       setSearchState({
         isLoading: false,

@@ -41,6 +41,13 @@ export default async function handler(req, res) {
     }
 
     // 4. Return Data to Frontend
+    if (req.headers['x-debug-logging'] === 'true') {
+      console.log("--- API DEBUG ---");
+      console.log("Endpoint:", endpoint);
+      console.log("Query:", queryString);
+      //console.log("Response:", JSON.stringify(data, null, 2));
+      console.log("-----------------");
+    }
     return res.status(200).json(data);
   } catch (error) {
     return res.status(500).json({ error: { message: "Internal Server Error contacting YouTube" } });

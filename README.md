@@ -17,6 +17,7 @@ Thanks to [Google AI Studio - Gemini 3 Pro](https://aistudio.google.com/apps/dri
 *   **Dark & Light Mode**: Fully themed interface to match your preference.
 *   **Secure Access**: Simple PIN-based authentication to keep your feed private.
 *   **Local Storage**: Your channels and settings are saved locally in your browser.
+*   **Server Debug Logging**: Toggle detailed API logs in the Vercel/Server console for troubleshooting.
 
 ## Tech Stack
 

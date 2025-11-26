@@ -30,6 +30,7 @@ export interface AppConfig {
   daysBack: number;
   autoRefreshHours: number;
   theme: 'dark' | 'light';
+  debugLogging?: boolean;
 }
 
 export interface ConfigFile {
@@ -37,4 +38,5 @@ export interface ConfigFile {
   defaultLookbackDays: number;
   defaultAutoRefreshHours: number;
   defaultTheme: 'dark' | 'light';
+  defaultDebugLogging?: boolean;
 }
