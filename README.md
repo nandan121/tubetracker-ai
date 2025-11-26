@@ -5,7 +5,8 @@ TubeTracker AI is a modern, privacy-focused web application that tracks recent v
 Thanks to [Google AI Studio - Gemini 3 Pro](https://aistudio.google.com/apps/drive/1BoaR3XG4WFupbOeEqHPMQSDnfYQtAboV)
 
 <div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
+<img width="1125" alt="image" src="https://github.com/user-attachments/assets/63f76f46-2aad-4075-aba2-c4d43825ee5a" />
+<img width="1125"  alt="image" src="https://github.com/user-attachments/assets/e9869fdb-6ce4-45e3-829d-064c2b4c5046" />
 </div>
 
 ## 🎯 What is TubeTracker AI?
@@ -192,7 +193,6 @@ export const appConfig: ConfigFile = {
 4.  **Deploy**: Click "Deploy" - Vercel will automatically build and deploy
 
 ### Environment Variables Setup
-<img width="1567" height="929" alt="image" src="https://github.com/user-attachments/assets/aed5dcf9-3f04-4ace-91d5-4c73c6923cc0" />
 
 ### Alternative Deployment Options
 *   **Netlify**: Supports serverless functions, similar setup process
