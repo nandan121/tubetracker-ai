@@ -48,5 +48,6 @@ export const appConfig: ConfigFile = {
   defaultLookbackDays: 5,
   defaultAutoRefreshHours: 1,
   defaultTheme: 'dark',
-  defaultDebugLogging: true
+  defaultDebugLogging: true,
+  defaultMaxResults: 20
 };

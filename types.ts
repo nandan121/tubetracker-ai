@@ -2,6 +2,7 @@
 export interface Channel {
   id: string; // YouTube Channel ID (e.g., UC...)
   name: string;
+  handle?: string;
   thumbnail?: string;
   uploadsPlaylistId: string; // The playlist ID for the channel's uploads (e.g., UU...)
 }
@@ -31,6 +32,7 @@ export interface AppConfig {
   autoRefreshHours: number;
   theme: 'dark' | 'light';
   debugLogging?: boolean;
+  maxResults?: number;
 }
 
 export interface ConfigFile {
@@ -39,4 +41,5 @@ export interface ConfigFile {
   defaultAutoRefreshHours: number;
   defaultTheme: 'dark' | 'light';
   defaultDebugLogging?: boolean;
+  defaultMaxResults?: number;
 }

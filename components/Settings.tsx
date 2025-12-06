@@ -1,7 +1,7 @@
 import React from 'react';
 import { ChannelManager } from './ChannelManager';
 import { Channel, AppConfig } from '../types';
-import { Calendar, Clock, Moon, Sun, ArrowLeft } from 'lucide-react';
+import { Calendar, Clock, Moon, Sun, ArrowLeft, Info, List } from 'lucide-react';
 
 interface SettingsProps {
     config: AppConfig;
@@ -60,6 +60,33 @@ export const Settings: React.FC<SettingsProps> = ({
                         <p className="text-xs text-gray-500 mt-2">
                             How many days back to check for new videos.
                         </p>
+                    </div>
+
+                    {/* Max Results Settings */}
+                    <div className="bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700 shadow-sm">
+                        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+                            <List className="w-5 h-5 text-green-500" />
+                            Max Results
+                        </h3>
+                        <div className="mb-2 flex justify-between text-sm text-gray-600 dark:text-gray-300">
+                            <span>Results per channel:</span>
+                            <span className="font-bold text-green-400">{config.maxResults || 20}</span>
+                        </div>
+                        <input
+                            type="range"
+                            min="5"
+                            max="50"
+                            value={config.maxResults || 20}
+                            onChange={(e) => onConfigChange({ ...config, maxResults: parseInt(e.target.value) })}
+                            className="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer accent-green-600"
+                            disabled={isLoading}
+                        />
+                        <div className="flex items-center gap-2 mt-2">
+                            <Info className="w-4 h-4 text-gray-400 dark:text-gray-500" />
+                            <p className="text-xs text-gray-500">
+                                Maximum number of videos to fetch from each channel's uploads playlist per scan.
+                            </p>
+                        </div>
                     </div>
 
                     {/* Auto Refresh Settings */}

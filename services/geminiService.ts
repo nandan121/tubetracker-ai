@@ -101,9 +101,10 @@ export const resolveConfigChannels = async (queries: string[], debug: boolean = 
 };
 
 export const fetchRecentVideos = async (
-  channels: Channel[], 
+  channels: Channel[],
   days: number,
-  debug: boolean = false
+  debug: boolean = false,
+  maxResults: number = 20
 ): Promise<VideoResult[]> => {
   if (channels.length === 0) return [];
 
@@ -119,7 +120,7 @@ export const fetchRecentVideos = async (
         endpoint: 'playlistItems',
         part: 'snippet',
         playlistId: channel.uploadsPlaylistId,
-        maxResults: '20'
+        maxResults: maxResults.toString()
       });
 
       const data = await handleResponse(

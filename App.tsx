@@ -26,7 +26,8 @@ export default function App() {
     daysBack: appConfig.defaultLookbackDays || 5,
     autoRefreshHours: appConfig.defaultAutoRefreshHours || 12,
     theme: appConfig.defaultTheme || 'dark',
-    debugLogging: appConfig.defaultDebugLogging ?? true
+    debugLogging: appConfig.defaultDebugLogging ?? true,
+    maxResults: appConfig.defaultMaxResults || 20
   });
   const [configLoaded, setConfigLoaded] = useState(false);
 
@@ -256,7 +257,7 @@ export default function App() {
     setChannelsModified(false); // Clear the notification when scan starts
 
     try {
-      const videos = await fetchRecentVideos(channels, config.daysBack, config.debugLogging);
+      const videos = await fetchRecentVideos(channels, config.daysBack, config.debugLogging, config.maxResults);
 
       setSearchState({
         isLoading: false,
