@@ -33,6 +33,7 @@ export interface AppConfig {
   theme: 'dark' | 'light';
   debugLogging?: boolean;
   maxResults?: number;
+  minDuration?: number; // Minimum video duration in seconds (0 to disable filtering)
 }
 
 export interface ConfigFile {
@@ -42,4 +43,5 @@ export interface ConfigFile {
   defaultTheme: 'dark' | 'light';
   defaultDebugLogging?: boolean;
   defaultMaxResults?: number;
+  defaultMinDuration?: number; // Default minimum video duration in seconds
 }

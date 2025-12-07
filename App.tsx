@@ -27,7 +27,8 @@ export default function App() {
     autoRefreshHours: appConfig.defaultAutoRefreshHours || 12,
     theme: appConfig.defaultTheme || 'dark',
     debugLogging: appConfig.defaultDebugLogging ?? true,
-    maxResults: appConfig.defaultMaxResults || 20
+    maxResults: appConfig.defaultMaxResults || 20,
+    minDuration: appConfig.defaultMinDuration ?? 90
   });
   const [configLoaded, setConfigLoaded] = useState(false);
 
@@ -292,8 +293,31 @@ export default function App() {
     });
   };
 
-  // Filter videos based on search query
+  // Helper function to convert ISO 8601 duration to seconds
+  const durationToSeconds = (duration?: string): number | null => {
+    if (!duration) return null;
+    
+    const match = duration.match(/PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/);
+    if (!match) return null;
+    
+    const hours = parseInt(match[1] || '0');
+    const minutes = parseInt(match[2] || '0');
+    const seconds = parseInt(match[3] || '0');
+    
+    return hours * 3600 + minutes * 60 + seconds;
+  };
+
+  // Filter videos based on search query and minimum duration
   const filteredVideos = searchState.videos.filter(video => {
+    // Apply duration filter (skip if minDuration is 0 or not set)
+    if (config.minDuration && config.minDuration > 0) {
+      const videoDuration = durationToSeconds(video.duration);
+      if (videoDuration !== null && videoDuration < config.minDuration) {
+        return false;
+      }
+    }
+
+    // Apply search query filter
     if (!searchQuery) return true;
     const query = searchQuery.toLowerCase();
     return (

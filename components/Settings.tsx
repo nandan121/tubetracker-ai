@@ -1,7 +1,7 @@
 import React from 'react';
 import { ChannelManager } from './ChannelManager';
 import { Channel, AppConfig } from '../types';
-import { Calendar, Clock, Moon, Sun, ArrowLeft, Info, List } from 'lucide-react';
+import { Calendar, Clock, Moon, Sun, ArrowLeft, Info, List, Play } from 'lucide-react';
 
 interface SettingsProps {
     config: AppConfig;
@@ -87,6 +87,41 @@ export const Settings: React.FC<SettingsProps> = ({
                                 Maximum number of videos to fetch from each channel's uploads playlist per scan.
                             </p>
                         </div>
+                    </div>
+
+                    {/* Minimum Duration Filter Settings */}
+                    <div className="bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700 shadow-sm">
+                        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+                            <Play className="w-5 h-5 text-red-500" />
+                            Filter Short Videos
+                        </h3>
+                        <div className="mb-2 flex justify-between text-sm text-gray-600 dark:text-gray-300">
+                            <span>Minimum duration:</span>
+                            <span className="font-bold text-red-400">
+                                {config.minDuration && config.minDuration > 0 ? `${config.minDuration}s` : 'Disabled'}
+                            </span>
+                        </div>
+                        <input
+                            type="range"
+                            min="0"
+                            max="300"
+                            step="15"
+                            value={config.minDuration || 0}
+                            onChange={(e) => onConfigChange({ ...config, minDuration: parseInt(e.target.value) })}
+                            className="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer accent-red-600"
+                            disabled={isLoading}
+                        />
+                        <div className="flex items-center justify-between mt-2">
+                            <div className="flex items-center gap-2">
+                                <Info className="w-4 h-4 text-gray-400 dark:text-gray-500" />
+                                <p className="text-xs text-gray-500">
+                                    Filter out videos shorter than the specified duration (0 to disable).
+                                </p>
+                            </div>
+                        </div>
+                        <p className="text-xs text-gray-500 mt-2">
+                            Set to 90s to filter out YouTube Shorts. Videos without duration info won't be filtered.
+                        </p>
                     </div>
 
                     {/* Auto Refresh Settings */}

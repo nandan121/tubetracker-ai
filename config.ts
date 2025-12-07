@@ -49,5 +49,6 @@ export const appConfig: ConfigFile = {
   defaultAutoRefreshHours: 1,
   defaultTheme: 'dark',
   defaultDebugLogging: true,
-  defaultMaxResults: 20
+  defaultMaxResults: 20,
+  defaultMinDuration: 90 // Filter out videos shorter than 90 seconds (YouTube Shorts)
 };
