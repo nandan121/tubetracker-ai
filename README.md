@@ -6,7 +6,10 @@ Thanks to [Google AI Studio - Gemini 3 Pro](https://aistudio.google.com/apps/dri
 
 <div align="center">
 <img width="1125" alt="image" src="https://github.com/user-attachments/assets/63f76f46-2aad-4075-aba2-c4d43825ee5a" />
-<img width="1125"  alt="image" src="https://github.com/user-attachments/assets/e9869fdb-6ce4-45e3-829d-064c2b4c5046" />
+
+<img width="1125" alt="image" src="https://github.com/user-attachments/assets/ed59b2f2-48e0-4c31-8a19-24e9a75d5954" />
+
+
 </div>
 
 ## 🎯 What is TubeTracker AI?
