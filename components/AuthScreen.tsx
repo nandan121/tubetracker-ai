@@ -1,6 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
-import { Lock, Youtube, Eye, EyeOff } from 'lucide-react';
+import { Lock, Youtube, Eye, EyeOff, AlertCircle } from 'lucide-react';
+import { validatePin } from '../services/geminiService';
 
 interface AuthScreenProps {
   onAuthenticated: () => void;
@@ -11,6 +12,8 @@ const PIN_STORAGE_KEY = 'tubetracker_auth_pin';
 export const AuthScreen: React.FC<AuthScreenProps> = ({ onAuthenticated }) => {
   const [pin, setPin] = useState('');
   const [showPin, setShowPin] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     const storedPin = localStorage.getItem(PIN_STORAGE_KEY);
@@ -23,16 +26,33 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onAuthenticated }) => {
     }
   }, []);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (pin.length < 1) return;
 
-    // Save PIN to local storage so the Service can grab it for headers
-    localStorage.setItem(PIN_STORAGE_KEY, pin);
+    setIsLoading(true);
+    setError(null);
 
-    // We assume it's valid for now. If the first API call fails with 401, 
-    // the main App will handle the error.
-    onAuthenticated();
+    try {
+      // Validate the PIN before proceeding
+      const isValid = await validatePin(pin);
+
+      if (!isValid) {
+        setError("Invalid PIN. Please try again.");
+        setIsLoading(false);
+        return;
+      }
+
+      // Save PIN to local storage so the Service can grab it for headers
+      localStorage.setItem(PIN_STORAGE_KEY, pin);
+
+      // PIN is valid, proceed with authentication
+      onAuthenticated();
+    } catch (error) {
+      console.error("Authentication error:", error);
+      setError("Authentication failed. Please try again.");
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -49,6 +69,14 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onAuthenticated }) => {
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
+          {/* Error Message Display */}
+          {error && (
+            <div className="bg-red-50 border border-red-200 text-red-700 p-3 rounded-lg flex items-center gap-2">
+              <AlertCircle className="w-4 h-4" />
+              <span className="text-sm">{error}</span>
+            </div>
+          )}
+
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Access PIN
@@ -75,9 +103,17 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onAuthenticated }) => {
 
           <button
             type="submit"
-            className="w-full bg-red-600 hover:bg-red-700 text-white font-semibold py-3 px-4 rounded-lg transition-colors duration-200 shadow-lg shadow-red-900/30 flex items-center justify-center gap-2"
+            disabled={isLoading}
+            className={`w-full bg-red-600 hover:bg-red-700 text-white font-semibold py-3 px-4 rounded-lg transition-colors duration-200 shadow-lg shadow-red-900/30 flex items-center justify-center gap-2 ${isLoading ? 'opacity-70 cursor-not-allowed' : ''}`}
           >
-            Unlock Dashboard
+            {isLoading ? (
+              <>
+                <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+                Validating...
+              </>
+            ) : (
+              'Unlock Dashboard'
+            )}
           </button>
         </form>
 

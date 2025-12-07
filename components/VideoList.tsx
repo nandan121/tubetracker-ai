@@ -150,7 +150,7 @@ export const VideoList: React.FC<VideoListProps> = ({ videos, isLoading, hasSear
             </div>
 
             <div className="p-4 flex flex-col flex-1">
-              <h3 className="text-gray-900 dark:text-white font-semibold leading-snug group-hover:text-red-600 dark:group-hover:text-red-400 transition-colors line-clamp-2 min-h-11" title={video.title}>
+              <h3 className="text-gray-900 dark:text-white font-semibold leading-snug hover:text-red-600 dark:hover:text-red-400 transition-colors line-clamp-2 min-h-11" title={video.title}>
                 {video.title}
               </h3>
 

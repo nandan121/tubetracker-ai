@@ -3,6 +3,7 @@ import { VideoResult, Channel } from "../types";
 
 // We now point to our own Vercel API route, not Google directly
 const API_PROXY_URL = '/api/youtube';
+const VALIDATE_PIN_URL = '/api/validate-pin';
 
 const getAuthHeaders = (debug: boolean = false) => {
   const pin = localStorage.getItem('tubetracker_auth_pin') || '';
@@ -208,7 +209,35 @@ export const fetchRecentVideos = async (
      throw new Error(`Failed to fetch videos. Errors: ${errors.join(', ')}`);
   }
 
-  return allVideos.sort((a, b) => 
+  return allVideos.sort((a, b) =>
     new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime()
   );
+};
+
+/**
+ * Validates the PIN by making a simple API call to check authentication
+ * This is a lightweight call that doesn't fetch any YouTube data
+ */
+export const validatePin = async (pin: string): Promise<boolean> => {
+  try {
+    const headers = {
+      'x-auth-pin': pin,
+      'Content-Type': 'application/json'
+    };
+
+    const response = await fetch(VALIDATE_PIN_URL, { headers });
+
+    if (!response.ok) {
+      const data = await response.json();
+      if (response.status === 401) {
+        return false;
+      }
+      throw new Error(data?.error?.message || "Validation failed");
+    }
+
+    return true;
+  } catch (error) {
+    console.error("PIN validation error:", error);
+    return false;
+  }
 };

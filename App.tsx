@@ -195,8 +195,16 @@ export default function App() {
           });
           return newSet;
         });
-      } catch (e) {
+      } catch (e: any) {
         console.error("🔧 [Config Sync] Error processing config channels", e);
+        // Don't auto-logout on PIN errors in config sync
+        if (e.message && e.message.includes("Invalid PIN")) {
+          // Set an error that will be visible in the UI
+          setSearchState(prev => ({
+            ...prev,
+            error: "Invalid PIN. Please logout and try again with the correct PIN."
+          }));
+        }
       } finally {
         // ALWAYS mark as loaded to prevent infinite loops, even if some failed
         localStorage.setItem(STORAGE_KEY_CONFIG_LOADED, 'true');
@@ -268,13 +276,20 @@ export default function App() {
       });
     } catch (err: any) {
       if (err.message.includes("Invalid PIN")) {
-        handleLogout();
+        // Don't auto-logout, just show the error
+        // User can manually logout if they want to re-enter PIN
+        setSearchState(prev => ({
+          ...prev,
+          isLoading: false,
+          error: "Invalid PIN. Please logout and try again with the correct PIN."
+        }));
+      } else {
+        setSearchState(prev => ({
+          ...prev,
+          isLoading: false,
+          error: err.message || "An unknown error occurred"
+        }));
       }
-      setSearchState(prev => ({
-        ...prev,
-        isLoading: false,
-        error: err.message || "An unknown error occurred"
-      }));
     }
   };
 

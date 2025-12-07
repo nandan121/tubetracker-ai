@@ -35,6 +35,7 @@ TubeTracker AI solves the problem of staying updated with your favorite YouTube 
 *   **Loading States**: Visual feedback during API calls with progress indicators
 *   **Error Handling**: Graceful error messages with recovery suggestions
 *   **Cost Estimation**: Shows estimated API costs based on your channel count
+*   **PIN Validation**: Real-time PIN validation with clear error display and retry functionality
 
 ### 🔒 Security & Privacy
 *   **PIN-Based Authentication**: Simple but effective access control without complex user accounts
@@ -157,6 +158,7 @@ export const appConfig: ConfigFile = {
 *   **Blue Alert**: Appears when you add/remove channels, reminding you to scan
 *   **Red Error**: Shows when API calls fail with helpful error messages
 *   **Cost Indicator**: Shows estimated API costs based on your channel count
+*   **PIN Error Display**: Clear error messages when authentication fails, allowing immediate retry
 
 ## 🔒 Security & Privacy
 
