@@ -135,15 +135,15 @@ export const VideoList: React.FC<VideoListProps> = ({ videos, isLoading, hasSear
               )}
               <div className="absolute inset-0 bg-gradient-to-t from-gray-900/90 via-transparent to-transparent opacity-60"></div>
 
-              {/* Duration Badge (bottom-left) */}
+              {/* Duration Badge (bottom-right) */}
               {parseDuration(video.duration) && (
-                <div className="absolute bottom-2 left-2 bg-black/90 text-white text-xs font-semibold px-2 py-1 rounded backdrop-blur-sm">
+                <div className="absolute bottom-2 right-2 bg-black/90 text-white text-xs font-semibold px-2 py-1 rounded backdrop-blur-sm">
                   {parseDuration(video.duration)}
                 </div>
               )}
 
-              {/* Date Badge (bottom-right) */}
-              <div className="absolute bottom-2 right-2 bg-black/80 text-white text-xs px-2 py-1 rounded flex items-center gap-1 backdrop-blur-sm">
+              {/* Date Badge (bottom-left) */}
+              <div className="absolute bottom-2 left-2 bg-black/80 text-white text-xs px-2 py-1 rounded flex items-center gap-1 backdrop-blur-sm">
                 <Clock className="w-3 h-3 text-red-400" />
                 {timeAgo(video.publishedAt)}
               </div>
@@ -156,7 +156,15 @@ export const VideoList: React.FC<VideoListProps> = ({ videos, isLoading, hasSear
 
               <div className="mt-auto pt-1 border-t border-gray-100 dark:border-gray-700/50">
                 <div className="flex items-center justify-between text-sm">
-                  <span className="font-medium text-gray-600 dark:text-gray-300 truncate max-w-[150px]">{video.channelName}</span>
+                  <a 
+                    href={`https://www.youtube.com/channel/${video.channelId}/videos`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="font-medium text-gray-600 dark:text-gray-300 hover:text-red-600 dark:hover:text-red-400 transition-colors truncate max-w-[150px]"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    {video.channelName}
+                  </a>
                   <div className="flex items-center gap-3">
                     {formatViewCount(video.viewCount) && (
                       <div className="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400">
