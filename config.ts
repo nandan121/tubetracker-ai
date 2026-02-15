@@ -24,26 +24,10 @@ export const appConfig: ConfigFile = {
   defaultChannels: [
     "@AICodeKing",
     "@mreflow",
-  /*  "@matthew_berman",
-    "@codedigiptbiplab",
-    "@theAIsearch",
-    "@WesRoth",
-    "@engineerprompt",
-    "@MervinPraison",
-    "@1littlecoder",
-    "@AstroKJ",
-    "@TheoreticallyMedia",
-    "@futurepedia_io",
-    "@realrobtheaiguy",
-    "@CreatorMagicAI",
-    "@AISeeKing",
-    "@intheworldofai",
-    "@Corbin_Brown",
-    "@SkillLeapAI",
-    "@aiexplained-official",
-    "@graceleungyl",
-    "@TheAIAutomators",
-    "@airevolutionx", */
+  /*  @AICodeKing, @mreflow, @matthew_berman, @codedigiptbiplab, @theAIsearch, @WesRoth, @engineerprompt, @MervinPraison, @1littlecoder, @AstroKJ, @TheoreticallyMedia, @futurepedia_io, @realrobtheaiguy, @CreatorMagicAI, @AISeeKing, @intheworldofai, @Corbin_Brown, @SkillLeapAI, @aiexplained-official, @graceleungyl, @TheAIAutomators, @airevolutionx, @suryakunju, @DavidOndrej, @webdoze, @AlexFinnOfficial
+
+
+  */
   ],
   defaultLookbackDays: 5,
   defaultAutoRefreshHours: 1,
