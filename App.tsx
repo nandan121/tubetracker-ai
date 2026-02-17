@@ -430,18 +430,7 @@ export default function App() {
             </div>
             <div className="flex flex-col">
               <h1 className="text-xl font-bold tracking-tight text-gray-900 dark:text-white hidden sm:block leading-none">TubeTracker</h1>
-              {profiles.length > 1 ? (
-                <select
-                  value={activeProfileId}
-                  onChange={(e) => setActiveProfileId(e.target.value)}
-                  onClick={(e) => e.stopPropagation()}
-                  className="text-xs bg-transparent border-none text-gray-500 dark:text-gray-400 font-medium focus:ring-0 cursor-pointer p-0 h-4"
-                >
-                  {profiles.map(p => (
-                    <option key={p.id} value={p.id} className="bg-white dark:bg-gray-800">{p.name}</option>
-                  ))}
-                </select>
-              ) : profiles.length === 1 && (
+              {profiles.length > 1 && (
                 <span className="text-xs text-gray-500 dark:text-gray-400 font-medium">{activeProfile.name}</span>
               )}
             </div>
@@ -533,8 +522,24 @@ export default function App() {
                 </div>
               </div>
 
+              {/* Profile Selector (Only if multiple profiles) */}
+              {profiles.length > 1 && (
+                <div className="flex items-center gap-2 w-full md:w-auto">
+                  <UserCircle className="w-5 h-5 text-gray-400" />
+                  <select
+                    value={activeProfileId}
+                    onChange={(e) => setActiveProfileId(e.target.value)}
+                    className="bg-gray-50 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white text-sm rounded-lg focus:ring-red-500 focus:border-red-500 block w-full md:w-48 p-2.5"
+                  >
+                    {profiles.map(p => (
+                      <option key={p.id} value={p.id}>{p.name}</option>
+                    ))}
+                  </select>
+                </div>
+              )}
+
               {/* Scan Button */}
-              <div className="flex items-center gap-4 w-full md:w-auto">
+              <div className="flex items-center gap-4 w-full md:w-auto ml-auto md:ml-0">
                 {activeProfile.channels.length > 0 && (
                   <div className="hidden sm:flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400">
                     <Zap className="w-3 h-3 text-yellow-500" />
