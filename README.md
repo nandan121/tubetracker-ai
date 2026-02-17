@@ -25,6 +25,8 @@ TubeTracker AI solves the problem of staying updated with your favorite YouTube 
 ## ✨ Features
 
 ### 📺 Core Functionality
+*   **Multi-Profile Support**: Create separate channel feeds for different interests (e.g., AI & Coding, Finance, Gaming) with independent settings
+*   **Profile Switching**: Instantly switch between profiles to view different channel collections
 *   **Unified Video Feed**: View the latest videos from all your tracked channels in one clean, responsive grid layout
 *   **Smart Search**: Instantly filter videos by title, description, or channel name with real-time results
 *   **Customizable Lookback Period**: Choose how many days back to scan for new videos (1-30 days, default: 5 days)
@@ -47,10 +49,37 @@ TubeTracker AI solves the problem of staying updated with your favorite YouTube 
 *   **No Data Collection**: Zero tracking, analytics, or user behavior monitoring
 
 ### ⚙️ Advanced Settings
+*   **Profile Management**: Create, switch, and delete profiles to organize channels by topic or purpose
 *   **Channel Management**: Add/remove YouTube channels using handles (e.g., @channelname) with batch input support
+*   **Improved Duplicate Handling**: Smart detection and feedback when adding duplicate channels
 *   **Debug Logging**: Toggle detailed server-side API logs for troubleshooting
 *   **Persistent Settings**: All preferences automatically saved and restored
-*   **Config File Support**: Pre-configure default channels for quick setup
+*   **Config File Support**: Pre-configure default profiles and channels for quick setup
+
+## 👥 Multi-Profile System
+
+TubeTracker AI now supports multiple profiles, allowing you to organize your YouTube channels into separate feeds based on topics, interests, or purposes.
+
+### Profile Features
+*   **Independent Channel Lists**: Each profile maintains its own set of tracked channels
+*   **Separate Video Feeds**: Videos are scoped to the active profile, showing only channels from that profile
+*   **Profile Switching**: Quick dropdown selector in the main interface to switch between profiles
+*   **Profile Management**: Create, rename, and delete profiles from the Settings panel
+*   **Data Migration**: Existing single-profile users are automatically migrated to a "Default" profile
+*   **Per-Profile Settings**: Lookback period and other settings apply globally, but channels and videos are profile-specific
+
+### Using Profiles
+1. **Create a Profile**: Go to Settings → Profile Management → Click "New Profile"
+2. **Name Your Profile**: Give it a descriptive name (e.g., "AI & Coding", "Finance", "Gaming")
+3. **Add Channels**: With the profile active, add channels specific to that profile's focus
+4. **Switch Profiles**: Use the profile dropdown in the main header to switch between different feeds
+5. **Delete Unneeded Profiles**: Remove profiles you no longer need (requires at least 2 profiles)
+
+### Migration from Single-Profile
+If you're upgrading from an older version:
+- Your existing channels are automatically migrated to a new "Default" profile
+- No manual migration needed - everything works seamlessly
+- You can create additional profiles and organize your channels as desired
 
 ## 🛠️ Tech Stack
 
@@ -116,14 +145,43 @@ The application will be available at `http://localhost:3000`
 
 ### 3. First Run Experience
 1. **Enter your PIN**: Use the authentication PIN you configured
-2. **Add Channels**: Use the Settings panel to add YouTube channels (must use handles like `@channelname`)
-3. **Scan for Videos**: Click "Scan Now" to fetch recent videos
-4. **Customize**: Adjust lookback period, auto-refresh settings, and theme to your preference
+2. **Understand Profiles**: The app starts with a "Default" profile. You can create additional profiles in Settings
+3. **Add Channels**: Use the Settings panel to add YouTube channels to the active profile (must use handles like `@channelname`)
+4. **Scan for Videos**: Click "Scan Now" to fetch recent videos for the active profile
+5. **Customize**: Adjust lookback period, auto-refresh settings, and theme to your preference
+6. **Create Additional Profiles**: Use the profile management in Settings to organize channels by topic
+
+### Data Migration
+If you're upgrading from an older version:
+- Your existing channels are automatically migrated to a "Default" profile
+- No manual migration required
+- You can immediately start creating new profiles and organizing your channels
 
 ## 🔧 Configuration
 
-### Default Channels
-Edit `config.ts` to set default channels that load on first run:
+### Default Profiles (Recommended)
+Edit `config.ts` to pre-define multiple profiles with their own channel sets:
+```typescript
+export const appConfig: ConfigFile = {
+  defaultProfiles: [
+    {
+      name: "AI & Coding",
+      channels: ["@AICodeKing", "@mreflow", "@matthew_berman"]
+    },
+    {
+      name: "Finance",
+      channels: ["@JosephCarlsonShow", "@EverythingMoney"]
+    }
+  ],
+  defaultLookbackDays: 5,
+  defaultAutoRefreshHours: 12,
+  defaultTheme: 'dark',
+  defaultDebugLogging: true
+};
+```
+
+### Legacy Default Channels
+For backward compatibility, `defaultChannels` still works and will populate the "Default" profile if no profiles are defined:
 ```typescript
 export const appConfig: ConfigFile = {
   defaultChannels: [
@@ -131,10 +189,7 @@ export const appConfig: ConfigFile = {
     "@mreflow",
     // Add more channels here
   ],
-  defaultLookbackDays: 5,
-  defaultAutoRefreshHours: 12,
-  defaultTheme: 'dark',
-  defaultDebugLogging: true
+  // ... other settings
 };
 ```
 
@@ -144,12 +199,20 @@ export const appConfig: ConfigFile = {
 
 ## 📱 Usage Guide
 
+### Getting Started with Profiles
+1. **First Run**: The app creates a "Default" profile automatically
+2. **Access Profile Selector**: Use the profile dropdown in the main interface to switch profiles
+3. **Create New Profile**: Go to Settings → Profile Management → "New Profile"
+4. **Delete Profile**: Select a profile and click "Delete" (only available when you have more than one profile)
+5. **Add Channels to Profile**: In Settings, the channel manager adds channels to the currently active profile
+
 ### Adding Channels
 1. Navigate to Settings (gear icon in top-right)
 2. In the "Tracked Channels" section, enter channel handles
 3. Use comma separation to add multiple channels at once (e.g., `@channel1,@channel2`)
 4. Click the + button to add
 5. **Important**: Click "Scan Now" to update your video feed
+6. **Duplicate Handling**: The app will notify you if you try to add channels that already exist in the current profile
 
 ### Managing Your Feed
 *   **Search**: Use the search bar to filter videos by title, description, or channel
@@ -159,6 +222,7 @@ export const appConfig: ConfigFile = {
 
 ### Understanding Notifications
 *   **Blue Alert**: Appears when you add/remove channels, reminding you to scan
+*   **Green Success**: Confirms successful channel additions
 *   **Red Error**: Shows when API calls fail with helpful error messages
 *   **Cost Indicator**: Shows estimated API costs based on your channel count
 *   **PIN Error Display**: Clear error messages when authentication fails, allowing immediate retry
@@ -214,13 +278,13 @@ tubetracker-ai/
 ├── components/
 │   ├── AuthScreen.tsx      # PIN authentication
 │   ├── ChannelManager.tsx  # Channel add/remove interface
-│   ├── Settings.tsx        # Settings and preferences
+│   ├── Settings.tsx        # Settings and preferences (includes profile management UI)
 │   └── VideoList.tsx       # Video display grid
 ├── services/
 │   └── geminiService.ts    # API communication layer
-├── types.ts                # TypeScript type definitions
-├── config.ts               # Default configuration
-├── App.tsx                 # Main application component
+├── types.ts                # TypeScript type definitions (Profile, AppConfig, etc.)
+├── config.ts               # Default configuration (defaultProfiles, settings)
+├── App.tsx                 # Main application component (profile state, profile selector UI)
 └── package.json            # Dependencies and scripts
 ```
 
@@ -229,9 +293,11 @@ tubetracker-ai/
 #### `App.tsx`
 Main application component handling:
 - Authentication state management
-- Channel and video data persistence
+- Profile state management (profiles, active profile, switching)
+- Video data persistence per profile
 - Auto-refresh logic and manual scanning
 - Settings synchronization
+- Data migration from legacy single-profile format
 
 #### `ChannelManager.tsx`
 Channel management interface with:
@@ -239,6 +305,14 @@ Channel management interface with:
 - Visual channel cards with thumbnails
 - Remove functionality with hover interactions
 - Input validation and error handling
+- Duplicate detection and user feedback
+
+#### `Settings.tsx`
+Settings and profile management component:
+- Profile management UI (create, switch, delete profiles)
+- Channel management integration (ChannelManager)
+- App preferences (lookback, auto-refresh, theme, debug logging)
+- Organized in two-column layout (preferences + channel manager)
 
 #### `geminiService.ts`
 API communication layer providing:
