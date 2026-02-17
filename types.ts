@@ -27,6 +27,13 @@ export interface SearchState {
   videos: VideoResult[];
 }
 
+export interface Profile {
+  id: string;
+  name: string;
+  channels: Channel[];
+  searchState: SearchState;
+}
+
 export interface AppConfig {
   daysBack: number;
   autoRefreshHours: number;
@@ -36,8 +43,14 @@ export interface AppConfig {
   minDuration?: number; // Minimum video duration in seconds (0 to disable filtering)
 }
 
+export interface ProfileConfig {
+  name: string;
+  channels: string[];
+}
+
 export interface ConfigFile {
   defaultChannels: string[];
+  defaultProfiles?: ProfileConfig[];
   defaultLookbackDays: number;
   defaultAutoRefreshHours: number;
   defaultTheme: 'dark' | 'light';

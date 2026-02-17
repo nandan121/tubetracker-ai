@@ -19,8 +19,8 @@ import { ConfigFile } from "./types";
  */
 
 export const appConfig: ConfigFile = {
-  // CHANNELS
-  // These are the default channels that load when you open the app.
+  // DEFAULT CHANNELS (Deprecated - Use defaultProfiles instead for better organization)
+  // These load into the "Default" profile if no profiles exist.
   defaultChannels: [
     "@AICodeKing",
     "@mreflow",
@@ -29,6 +29,22 @@ export const appConfig: ConfigFile = {
 
   */
   ],
+  
+  // DEFAULT PROFILES
+  // You can pre-define multiple profiles here. Each will have its own independent feed.
+  /*
+  defaultProfiles: [
+    {
+        name: "AI & Coding",
+        channels: ["@AICodeKing", "@mreflow", "@matthew_berman"]
+    },
+    {
+        name: "Finance",
+        channels: ["@JosephCarlsonShow", "@EverythingMoney"]
+    }
+  ],
+  */
+  
   defaultLookbackDays: 5,
   defaultAutoRefreshHours: 1,
   defaultTheme: 'dark',

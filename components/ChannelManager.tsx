@@ -13,34 +13,92 @@ interface ChannelManagerProps {
 export const ChannelManager: React.FC<ChannelManagerProps> = ({ channels, onAdd, onRemove, disabled }) => {
   const [newChannel, setNewChannel] = useState('');
   const [isAdding, setIsAdding] = useState(false);
-  const [addError, setAddError] = useState<string | null>(null);
+  const [feedback, setFeedback] = useState<{ type: 'error' | 'success' | 'info'; message: string } | null>(null);
 
   const handleAdd = async (e: React.FormEvent) => {
     e.preventDefault();
     if (newChannel.trim()) {
       setIsAdding(true);
-      setAddError(null);
+      setFeedback(null);
 
       const handles = newChannel.split(',').map(h => h.trim()).filter(h => h.length > 0);
       const invalidHandles = handles.filter(h => !h.startsWith('@'));
 
       if (invalidHandles.length > 0) {
-        setAddError(`All handles must start with @. Invalid: ${invalidHandles.join(', ')}`);
+        setFeedback({
+          type: 'error',
+          message: `All handles must start with @. Invalid: ${invalidHandles.join(', ')}`
+        });
         setIsAdding(false);
         return;
       }
 
-      try {
-        for (const handle of handles) {
+      let addedCount = 0;
+      const duplicates: string[] = [];
+      const errors: string[] = [];
+
+      for (const handle of handles) {
+        try {
           await onAdd(handle);
+          addedCount++;
+        } catch (err: any) {
+          if (err.message === "Channel already added") {
+            duplicates.push(handle);
+          } else {
+            console.error(err);
+            errors.push(`${handle}: ${err.message || "Unknown error"}`);
+          }
         }
-        setNewChannel('');
-      } catch (err: any) {
-        setAddError(err.message || "Failed to find channel");
-      } finally {
-        setIsAdding(false);
       }
+
+      // If there were any successes or purely duplicates, clear the input
+      if (addedCount > 0 || (duplicates.length > 0 && errors.length === 0)) {
+        setNewChannel('');
+      }
+
+      // Construct feedback message
+      if (errors.length > 0) {
+        setFeedback({
+          type: 'error',
+          message: `Failed to add some channels: ${errors.join(', ')}. ${addedCount > 0 ? `Successfully added ${addedCount}.` : ''}`
+        });
+      } else if (duplicates.length > 0) {
+        if (addedCount > 0) {
+          setFeedback({
+            type: 'info',
+            message: `Added ${addedCount} channels. Skipped ${duplicates.length} duplicates: ${duplicates.join(', ')}`
+          });
+        } else {
+          setFeedback({
+            type: 'info',
+            message: `All channels were duplicates and skipped: ${duplicates.join(', ')}`
+          });
+        }
+      } else if (addedCount > 0) {
+        setFeedback({
+          type: 'success',
+          message: `Successfully added ${addedCount} channels`
+        });
+        setTimeout(() => setFeedback(null), 3000);
+      }
+
+      setIsAdding(false);
     }
+  };
+
+  const getFeedbackColor = () => {
+    if (!feedback) return '';
+    switch (feedback.type) {
+      case 'error': return 'text-red-400';
+      case 'success': return 'text-green-400';
+      case 'info': return 'text-blue-400';
+      default: return 'text-gray-400';
+    }
+  };
+
+  const getBorderColor = () => {
+    if (!feedback) return 'border-gray-300 dark:border-gray-600';
+    return feedback.type === 'error' ? 'border-red-500' : 'border-gray-300 dark:border-gray-600';
   };
 
   return (
@@ -57,10 +115,10 @@ export const ChannelManager: React.FC<ChannelManagerProps> = ({ channels, onAdd,
             value={newChannel}
             onChange={(e) => {
               setNewChannel(e.target.value);
-              setAddError(null);
+              setFeedback(null);
             }}
             placeholder="Example: @handle1, @handle2, @handle3..."
-            className={`flex-1 bg-gray-50 dark:bg-gray-900 border ${addError ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'} rounded-lg px-3 py-2 text-sm text-gray-900 dark:text-white focus:ring-1 focus:ring-red-500 focus:border-red-500 outline-none transition-colors`}
+            className={`flex-1 bg-gray-50 dark:bg-gray-900 border ${getBorderColor()} rounded-lg px-3 py-2 text-sm text-gray-900 dark:text-white focus:ring-1 focus:ring-red-500 focus:border-red-500 outline-none transition-colors`}
             disabled={disabled || isAdding}
           />
           <button
@@ -71,7 +129,7 @@ export const ChannelManager: React.FC<ChannelManagerProps> = ({ channels, onAdd,
             {isAdding ? <Loader2 className="w-5 h-5 animate-spin" /> : <Plus className="w-5 h-5" />}
           </button>
         </div>
-        {addError && <p className="text-xs text-red-400 pl-1">{addError}</p>}
+        {feedback && <p className={`text-xs ${getFeedbackColor()} pl-1`}>{feedback.message}</p>}
       </form>
 
       <div className="flex-1 overflow-y-auto space-y-2 pr-1 custom-scrollbar">

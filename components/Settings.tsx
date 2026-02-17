@@ -1,11 +1,18 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { ChannelManager } from './ChannelManager';
-import { Channel, AppConfig } from '../types';
-import { Calendar, Clock, Moon, Sun, ArrowLeft, Info, List, Play } from 'lucide-react';
+import { Channel, AppConfig, Profile } from '../types';
+import { Calendar, Clock, Moon, Sun, ArrowLeft, Info, List, Play, User, Plus, Trash2, Users } from 'lucide-react';
 
 interface SettingsProps {
     config: AppConfig;
     onConfigChange: (newConfig: AppConfig) => void;
+    // Profile Props
+    profiles: Profile[];
+    activeProfileId: string;
+    onSwitchProfile: (id: string) => void;
+    onCreateProfile: () => void;
+    onDeleteProfile: (id: string) => void;
+    // Channel Props (Active Profile)
     channels: Channel[];
     onAddChannel: (name: string) => Promise<void>;
     onRemoveChannel: (id: string) => void;
@@ -16,12 +23,19 @@ interface SettingsProps {
 export const Settings: React.FC<SettingsProps> = ({
     config,
     onConfigChange,
+    profiles,
+    activeProfileId,
+    onSwitchProfile,
+    onCreateProfile,
+    onDeleteProfile,
     channels,
     onAddChannel,
     onRemoveChannel,
     isLoading,
     onBack
 }) => {
+    // Local state for confirmation if needed, but App handles most logic.
+
     return (
         <div className="max-w-4xl mx-auto">
             <div className="mb-6 flex items-center gap-4">
@@ -32,6 +46,58 @@ export const Settings: React.FC<SettingsProps> = ({
                     <ArrowLeft className="w-6 h-6 text-gray-500 dark:text-gray-300" />
                 </button>
                 <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Settings</h2>
+            </div>
+
+            {/* Profile Management Section */}
+            <div className="bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700 shadow-sm mb-8">
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+                    <Users className="w-5 h-5 text-blue-500" />
+                    Profile Management
+                </h3>
+                <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
+                    <div className="flex-1 w-full md:w-auto">
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                            Active Profile
+                        </label>
+                        <select
+                            value={activeProfileId}
+                            onChange={(e) => onSwitchProfile(e.target.value)}
+                            disabled={isLoading}
+                            className="block w-full rounded-lg border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2.5 border"
+                        >
+                            {profiles.map((profile) => (
+                                <option key={profile.id} value={profile.id}>
+                                    {profile.name} ({profile.channels.length} channels)
+                                </option>
+                            ))}
+                        </select>
+                        <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                            Switching profiles will load its tracked channels and video feed.
+                        </p>
+                    </div>
+
+                    <div className="flex items-center gap-2 w-full md:w-auto mt-2 md:mt-0">
+                        <button
+                            onClick={onCreateProfile}
+                            disabled={isLoading}
+                            className="flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors flex-1 md:flex-none"
+                        >
+                            <Plus className="w-4 h-4" />
+                            New Profile
+                        </button>
+
+                        {profiles.length > 1 && (
+                            <button
+                                onClick={() => onDeleteProfile(activeProfileId)}
+                                disabled={isLoading}
+                                className="flex items-center justify-center gap-2 px-4 py-2 bg-red-50 hover:bg-red-100 dark:bg-red-900/20 dark:hover:bg-red-900/30 text-red-600 dark:text-red-400 text-sm font-medium rounded-lg transition-colors border border-red-200 dark:border-red-800 flex-1 md:flex-none"
+                            >
+                                <Trash2 className="w-4 h-4" />
+                                Delete
+                            </button>
+                        )}
+                    </div>
+                </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -205,7 +271,12 @@ export const Settings: React.FC<SettingsProps> = ({
                 {/* Right Column: Channel Manager */}
                 <div>
                     <div className="bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700 shadow-sm h-full">
-                        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Managed Channels</h3>
+                        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center justify-between">
+                            <span>Managed Channels</span>
+                            <span className="text-xs font-normal text-gray-500 px-2 py-1 bg-gray-100 dark:bg-gray-700 rounded">
+                                {profiles.find(p => p.id === activeProfileId)?.name}
+                            </span>
+                        </h3>
                         <div className="h-[500px]">
                             <ChannelManager
                                 channels={channels}
