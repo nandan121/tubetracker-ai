@@ -24,26 +24,26 @@ export const appConfig: ConfigFile = {
   defaultChannels: [
     "@AICodeKing",
     "@mreflow",
-  /*  @AICodeKing, @mreflow, @matthew_berman, @codedigiptbiplab, @theAIsearch, @WesRoth, @engineerprompt, @MervinPraison, @1littlecoder, @AstroKJ, @TheoreticallyMedia, @futurepedia_io, @realrobtheaiguy, @CreatorMagicAI, @AISeeKing, @intheworldofai, @Corbin_Brown, @SkillLeapAI, @aiexplained-official, @graceleungyl, @TheAIAutomators, @airevolutionx, @suryakunju, @DavidOndrej, @webdoze, @AlexFinnOfficial
-
-
-  */
   ],
   
   // DEFAULT PROFILES
   // You can pre-define multiple profiles here. Each will have its own independent feed.
-  /*
+  
   defaultProfiles: [
     {
         name: "AI & Coding",
         channels: ["@AICodeKing", "@mreflow", "@matthew_berman"]
+        /*  
+        list so that I can copy and paste in UI
+        @AICodeKing, @mreflow, @matthew_berman, @codedigiptbiplab, @theAIsearch, @WesRoth, @engineerprompt, @MervinPraison, @1littlecoder, @AstroKJ, @TheoreticallyMedia, @futurepedia_io, @realrobtheaiguy, @CreatorMagicAI, @AISeeKing, @intheworldofai, @Corbin_Brown, @SkillLeapAI, @aiexplained-official, @graceleungyl, @TheAIAutomators, @airevolutionx, @suryakunju, @DavidOndrej, @webdoze, @AlexFinnOfficial
+        */
     },
     {
         name: "Finance",
         channels: ["@JosephCarlsonShow", "@EverythingMoney"]
     }
   ],
-  */
+  
   
   defaultLookbackDays: 5,
   defaultAutoRefreshHours: 1,
