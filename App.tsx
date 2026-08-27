@@ -453,11 +453,22 @@ export default function App() {
           )}
 
           <div className="flex items-center gap-2 sm:gap-4 shrink-0">
-            <div className="text-sm text-gray-500 dark:text-gray-400 hidden lg:block">
-              {activeProfile.searchState.lastUpdated && (
-                <span>Updated: {new Date(activeProfile.searchState.lastUpdated).toLocaleTimeString()}</span>
-              )}
-            </div>
+            {activeProfile.searchState.lastUpdated && (
+              <div
+                id="header-last-updated"
+                className="relative group text-sm text-gray-500 dark:text-gray-400 hidden lg:flex items-center cursor-pointer select-none"
+                title={`Updated on ${new Date(activeProfile.searchState.lastUpdated).toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })} at ${new Date(activeProfile.searchState.lastUpdated).toLocaleTimeString()}`}
+              >
+                <span className="group-hover:text-gray-800 dark:group-hover:text-gray-200 transition-colors border-b border-dotted border-gray-400 dark:border-gray-600 pb-0.5">
+                  Updated: {new Date(activeProfile.searchState.lastUpdated).toLocaleTimeString()}
+                </span>
+                <div className="absolute right-0 top-full mt-2 hidden group-hover:flex flex-col items-center z-50 pointer-events-none drop-shadow-md">
+                  <div className="bg-gray-900 dark:bg-gray-700 text-white text-xs font-medium px-2.5 py-1.5 rounded-md shadow whitespace-nowrap border border-gray-700 dark:border-gray-600">
+                    📅 {new Date(activeProfile.searchState.lastUpdated).toLocaleDateString(undefined, { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' })}
+                  </div>
+                </div>
+              </div>
+            )}
 
             <button
               onClick={() => setShowSettings(!showSettings)}
