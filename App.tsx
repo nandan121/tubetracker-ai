@@ -457,7 +457,6 @@ export default function App() {
               <div
                 id="header-last-updated"
                 className="relative group text-sm text-gray-500 dark:text-gray-400 hidden lg:flex items-center cursor-pointer select-none"
-                title={`Updated on ${new Date(activeProfile.searchState.lastUpdated).toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })} at ${new Date(activeProfile.searchState.lastUpdated).toLocaleTimeString()}`}
               >
                 <span className="group-hover:text-gray-800 dark:group-hover:text-gray-200 transition-colors border-b border-dotted border-gray-400 dark:border-gray-600 pb-0.5">
                   Updated: {new Date(activeProfile.searchState.lastUpdated).toLocaleTimeString()}
@@ -523,7 +522,7 @@ export default function App() {
                   <input
                     type="range"
                     min="1"
-                    max="30"
+                    max="60"
                     value={config.daysBack}
                     onChange={(e) => setConfig({ ...config, daysBack: parseInt(e.target.value) })}
                     className="w-full md:w-32 h-2 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer accent-red-600"

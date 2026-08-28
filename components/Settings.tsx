@@ -117,7 +117,7 @@ export const Settings: React.FC<SettingsProps> = ({
                         <input
                             type="range"
                             min="1"
-                            max="30"
+                            max="60"
                             value={config.daysBack}
                             onChange={(e) => onConfigChange({ ...config, daysBack: parseInt(e.target.value) })}
                             className="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer accent-red-600"
