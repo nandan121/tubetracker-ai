@@ -43,7 +43,19 @@ export const appConfig: ConfigFile = {
         channels: ["@JosephCarlsonShow", "@EverythingMoney"]
     }
   ],
-  
+  /*
+  backup of current Aug 2026
+  console.log(JSON.parse(localStorage.getItem('tubetracker_profiles_v1')||'[]').map(p=>`        name: "${p.name}",\n        channels: [${p.channels.map(c=>'"'+c.handle+'"').join(', ')}]`).join('\n    },\n    {'))
+ 
+          name: "AI",
+        channels: ["@aicodeking", "@engineerprompt", "@mervinpraison", "@1littlecoder", "@astrokj", "@theoreticallymedia", "@futurepedia_io", "@realrobtheaiguy", "@creatormagicai", "@aiseeking", "@intheworldofai", "@corbin_brown", "@skillleapai", "@aiexplained-official", "@graceleungyl", "@theaiautomators", "@airevolutionx", "@suryakunju", "@davidondrej", "@webdoze", "@alexfinnofficial", "@codedigiptbiplab", "@theaisearch", "@wesroth", "@mreflow", "@matthew_berman", "@vaibhavsisinty"]
+    },
+    {        name: "Spiritual",
+        channels: ["@amaravatibuddhistmonastery", "@hillsidehermitage"]
+    },
+    {        name: "Finance",
+        channels: ["@jamesshack", "@pensioncraft"]
+  */
   
   defaultLookbackDays: 5,
   defaultAutoRefreshHours: 1,

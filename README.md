@@ -2,8 +2,6 @@
 
 TubeTracker AI is a modern, privacy-focused web application that tracks recent video uploads from your favorite YouTube channels. It provides a clean, unified feed of the latest content without the distractions of the YouTube algorithm.
 
-Thanks to [Google AI Studio - Gemini 3 Pro](https://aistudio.google.com/apps/drive/1BoaR3XG4WFupbOeEqHPMQSDnfYQtAboV)
-
 <div align="center">
 <img width="1125" alt="image" src="https://github.com/user-attachments/assets/63f76f46-2aad-4075-aba2-c4d43825ee5a" />
 
@@ -29,8 +27,8 @@ TubeTracker AI solves the problem of staying updated with your favorite YouTube 
 *   **Profile Switching**: Instantly switch between profiles to view different channel collections
 *   **Unified Video Feed**: View the latest videos from all your tracked channels in one clean, responsive grid layout
 *   **Smart Search**: Instantly filter videos by title, description, or channel name with real-time results
-*   **Customizable Lookback Period**: Choose how many days back to scan for new videos (1-30 days, default: 5 days)
-*   **Auto-Scan**: Automatically checks for new videos based on your preferred interval (1-48 hours, default: 12 hours)
+*   **Customizable Lookback Period**: Choose how many days back to scan for new videos (1-60 days, default: 5 days)
+*   **Auto-Scan**: Automatically checks for new videos based on your preferred interval (1-48 hours, default: 1 hour)
 *   **Manual Scan**: "Scan Now" button for on-demand updates when you need immediate results
 *   **Smart Notifications**: Visual alerts when you add/remove channels, prompting you to scan for updates
 
@@ -64,7 +62,7 @@ TubeTracker AI now supports multiple profiles, allowing you to organize your You
 *   **Independent Channel Lists**: Each profile maintains its own set of tracked channels
 *   **Separate Video Feeds**: Videos are scoped to the active profile, showing only channels from that profile
 *   **Profile Switching**: Quick dropdown selector in the main interface to switch between profiles
-*   **Profile Management**: Create, rename, and delete profiles from the Settings panel
+*   **Profile Management**: Create, switch, and delete profiles from the Settings panel
 *   **Data Migration**: Existing single-profile users are automatically migrated to a "Default" profile
 *   **Per-Profile Settings**: Lookback period and other settings apply globally, but channels and videos are profile-specific
 
@@ -72,7 +70,7 @@ TubeTracker AI now supports multiple profiles, allowing you to organize your You
 1. **Create a Profile**: Go to Settings → Profile Management → Click "New Profile"
 2. **Name Your Profile**: Give it a descriptive name (e.g., "AI & Coding", "Finance", "Gaming")
 3. **Add Channels**: With the profile active, add channels specific to that profile's focus
-4. **Switch Profiles**: Use the profile dropdown in the main header to switch between different feeds
+4. **Switch Profiles**: Use the profile dropdown in the controls bar to switch between different feeds
 5. **Delete Unneeded Profiles**: Remove profiles you no longer need (requires at least 2 profiles)
 
 ### Migration from Single-Profile
@@ -97,14 +95,12 @@ If you're upgrading from an older version:
 *   **Google Cloud Platform**: YouTube API access and quota management
 
 ### Development Tools
-*   **ESLint**: Code quality and consistency
-*   **PostCSS**: Advanced CSS processing
 *   **Hot Module Replacement**: Instant development feedback
 
 ## 🚀 Quick Start Guide
 
 ### Prerequisites
-*   Node.js (v16 or higher)
+*   Node.js (v18, v20, or v22+ — required by Vite 6)
 *   Google Cloud Project with YouTube Data API v3 enabled
 *   Vercel account (for deployment)
 
@@ -174,9 +170,11 @@ export const appConfig: ConfigFile = {
     }
   ],
   defaultLookbackDays: 5,
-  defaultAutoRefreshHours: 12,
+  defaultAutoRefreshHours: 1,
   defaultTheme: 'dark',
-  defaultDebugLogging: true
+  defaultDebugLogging: true,
+  defaultMaxResults: 20,
+  defaultMinDuration: 90
 };
 ```
 
@@ -189,7 +187,12 @@ export const appConfig: ConfigFile = {
     "@mreflow",
     // Add more channels here
   ],
-  // ... other settings
+  defaultLookbackDays: 5,
+  defaultAutoRefreshHours: 1,
+  defaultTheme: 'dark',
+  defaultDebugLogging: true,
+  defaultMaxResults: 20,
+  defaultMinDuration: 90
 };
 ```
 
@@ -224,7 +227,7 @@ export const appConfig: ConfigFile = {
 *   **Blue Alert**: Appears when you add/remove channels, reminding you to scan
 *   **Green Success**: Confirms successful channel additions
 *   **Red Error**: Shows when API calls fail with helpful error messages
-*   **Cost Indicator**: Shows estimated API costs based on your channel count
+*   **Cost Indicator**: Shows an estimated cost value based on your tracked channel count
 *   **PIN Error Display**: Clear error messages when authentication fails, allowing immediate retry
 
 ## 🔒 Security & Privacy
@@ -274,18 +277,26 @@ export const appConfig: ConfigFile = {
 ```
 tubetracker-ai/
 ├── api/
-│   └── youtube.js          # Serverless API proxy
+│   ├── youtube.js          # Serverless API proxy (PIN validation, API key injection)
+│   └── validate-pin.js     # Lightweight PIN validation endpoint
 ├── components/
-│   ├── AuthScreen.tsx      # PIN authentication
+│   ├── AuthScreen.tsx      # PIN entry screen
 │   ├── ChannelManager.tsx  # Channel add/remove interface
-│   ├── Settings.tsx        # Settings and preferences (includes profile management UI)
-│   └── VideoList.tsx       # Video display grid
+│   ├── Settings.tsx        # Settings, preferences, and profile management UI
+│   └── VideoList.tsx       # Video display grid with search/filter
 ├── services/
-│   └── geminiService.ts    # API communication layer
-├── types.ts                # TypeScript type definitions (Profile, AppConfig, etc.)
+│   └── geminiService.ts    # API communication layer (misnamed - YouTube API proxy)
+├── App.tsx                 # Main application component (state management, persistence, auto-refresh)
 ├── config.ts               # Default configuration (defaultProfiles, settings)
-├── App.tsx                 # Main application component (profile state, profile selector UI)
-└── package.json            # Dependencies and scripts
+├── favicon.svg             # App favicon
+├── index.html              # HTML shell with Tailwind CDN config and import map
+├── index.tsx               # React entry point
+├── metadata.json           # App deployment metadata
+├── package.json            # Dependencies and scripts
+├── tsconfig.json           # TypeScript configuration
+├── types.ts                # TypeScript type definitions (Profile, AppConfig, etc.)
+├── vercel.json             # Vercel deployment config
+└── vite.config.ts          # Vite configuration
 ```
 
 ### Key Components
@@ -298,6 +309,7 @@ Main application component handling:
 - Auto-refresh logic and manual scanning
 - Settings synchronization
 - Data migration from legacy single-profile format
+- Inline profile selector UI when multiple profiles exist
 
 #### `ChannelManager.tsx`
 Channel management interface with:
@@ -312,14 +324,16 @@ Settings and profile management component:
 - Profile management UI (create, switch, delete profiles)
 - Channel management integration (ChannelManager)
 - App preferences (lookback, auto-refresh, theme, debug logging)
+- Minimum duration filter for Shorts
 - Organized in two-column layout (preferences + channel manager)
 
 #### `geminiService.ts`
 API communication layer providing:
 - Secure server-side API proxy calls
-- Channel search and resolution
-- Video fetching with metadata enrichment
-- Error handling and retry logic
+- Channel search and resolution via handles
+- Video fetching with metadata enrichment (duration, view count)
+- Error handling with user-friendly messages
+- PIN validation via dedicated endpoint
 
 #### `youtube.js` (Serverless Function)
 Backend API proxy handling:
@@ -328,18 +342,24 @@ Backend API proxy handling:
 - Request sanitization and endpoint whitelisting
 - Debug logging and error forwarding
 
+#### `validate-pin.js` (Serverless Function)
+Lightweight PIN validation endpoint:
+- Validates PIN without fetching YouTube data
+- Used during initial authentication
+- Returns simple success/failure response
+
 ### Available Scripts
 ```bash
 # Development
-vercel dev                 # Start development server with API
-npm run dev               # Frontend only (no API)
+vercel dev                 # Start development server with API proxy
+npm run dev               # Start Vite frontend dev server
 
 # Production
 npm run build             # Build for production
 npm run preview           # Preview production build locally
 
 # Deployment
-vercel --prod             # Deploy to production
+vercel --prod             # Deploy to Vercel
 ```
 
 ### Debug Logging
@@ -353,7 +373,7 @@ The codebase is designed for extensibility:
 - **New Settings**: Add to `AppConfig` interface and `Settings.tsx`
 - **UI Components**: Follow existing patterns in `components/`
 - **API Endpoints**: Extend `youtube.js` with new YouTube API calls
-- **Themes**: Customize in `tailwind.config.js` and component styles
+- **Themes**: Customize in the inline Tailwind config in `index.html` and component styles
 
 ## 🐛 Troubleshooting
 
@@ -383,21 +403,22 @@ The codebase is designed for extensibility:
 ## 📊 API Usage & Costs
 
 ### YouTube Data API v3 Costs
-*   **Channel Search**: 100 units per request
-*   **Playlist Items**: 1 unit per request  
-*   **Video Details**: 1 unit per request
-*   **Daily Quota**: 10,000 units (approximately 100 channel scans per day)
+*   **Channel Lookup**: 1 unit per request (`channels.list`)
+*   **Playlist Items**: 1 unit per request per channel (`playlistItems.list`)
+*   **Video Details**: 1 unit per request per 50 videos (`videos.list`)
+*   **Daily Quota**: 10,000 units
 
 ### Cost Estimation
-The app shows estimated costs based on your channel count:
-*   **1-5 channels**: ~500-1,000 units per scan
-*   **6-10 channels**: ~1,000-2,000 units per scan
-*   **10+ channels**: Consider increasing scan interval to manage costs
+The app's cost indicator displays a value based on your tracked channel count:
+*   **Per scan**: ~2-3 API calls per channel (lookup + playlist + video details)
+*   **Example**: 5 channels = ~10-15 API calls per scan
+*   **Daily budget**: With 10,000 units, you can scan ~3,300-5,000 channels per day
 
 ### Optimization Tips
-*   **Batch Operations**: Add multiple channels at once to minimize API calls
+*   **Batch Operations**: Add multiple channels at once to minimize setup API calls
 *   **Reasonable Intervals**: Don't set auto-refresh too frequently
 *   **Smart Lookback**: Use shorter lookback periods for faster scanning
+*   **Max Results**: Lower max results to reduce video detail API calls
 
 ## 🤝 Contributing
 
@@ -422,15 +443,15 @@ The app shows estimated costs based on your channel count:
 
 ## 📄 License
 
-This project is open source and available under the [MIT License](LICENSE).
+This project is open source and available under the MIT License.
 
 ## 🙏 Acknowledgments
 
-*   **Google AI Studio - Gemini 3 Pro**: For AI-powered features and inspiration
 *   **YouTube Data API**: For providing access to public video and channel data
 *   **Vercel**: For seamless serverless deployment and hosting
 *   **React Community**: For the amazing ecosystem and tools
 *   **Tailwind CSS**: For rapid, consistent UI development
+*   **Lucide React**: For beautiful, consistent icons
 
 ## 📞 Support & Contact
 
