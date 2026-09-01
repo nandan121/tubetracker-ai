@@ -3,10 +3,12 @@
 TubeTracker AI is a modern, privacy-focused web application that tracks recent video uploads from your favorite YouTube channels. It provides a clean, unified feed of the latest content without the distractions of the YouTube algorithm.
 
 <div align="center">
+
 <img width="1125" alt="image" src="https://github.com/user-attachments/assets/63f76f46-2aad-4075-aba2-c4d43825ee5a" />
 
 <img width="1125" alt="image" src="https://github.com/user-attachments/assets/ed59b2f2-48e0-4c31-8a19-24e9a75d5954" />
 
+[![TubeTracker AI Architecture](https://raw.githubusercontent.com/nandan121/tubetracker-ai/refs/heads/master/archify-tubetracker.visual-check.1440x900.dark.png)](archify-tubetracker.html)
 
 </div>
 

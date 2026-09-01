@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "TubeTracker AI",
+    "output": "tubetracker-ai.architecture.html",
+    "quality_profile": "showcase"
+  },
+  "layout": {
+    "mode": "grid",
+    "cols": 6,
+    "gapX": 60,
+    "gapY": 50,
+    "cellW": 140,
+    "cellH": 70
+  },
+  "components": [
+    { "id": "users", "type": "external", "label": "Users", "sublabel": "Viewers", "row": 1, "col": 0 },
+    { "id": "browser", "type": "frontend", "label": "Browser", "sublabel": "React 19 + Vite", "row": 1, "col": 1 },
+    { "id": "auth", "type": "frontend", "label": "AuthScreen", "sublabel": "PIN entry", "row": 0, "col": 1 },
+    { "id": "app", "type": "frontend", "label": "App", "sublabel": "State + Profiles", "row": 1, "col": 2 },
+    { "id": "settings", "type": "frontend", "label": "Settings", "sublabel": "Config + Profiles", "row": 0, "col": 2 },
+    { "id": "videolist", "type": "frontend", "label": "VideoList", "sublabel": "Feed + Search", "row": 2, "col": 2 },
+    { "id": "channelmanager", "type": "frontend", "label": "ChannelManager", "sublabel": "Add/Remove", "row": 0, "col": 3 },
+    { "id": "service", "type": "frontend", "label": "geminiService", "sublabel": "API client", "row": 1, "col": 3 },
+    { "id": "storage", "type": "database", "label": "localStorage", "sublabel": "Profiles + Config", "row": 2, "col": 3 },
+    { "id": "proxy", "type": "backend", "label": "API Proxy", "sublabel": "Vercel Functions", "row": 1, "col": 4 },
+    { "id": "youtube", "type": "external", "label": "YouTube API", "sublabel": "Data v3", "row": 1, "col": 5 }
+  ],
+  "boundaries": [
+    { "kind": "security-group", "label": "Client", "wraps": ["auth", "app", "settings", "videolist", "channelmanager", "service", "storage"] },
+    { "kind": "region", "label": "Vercel", "wraps": ["proxy"] }
+  ],
+  "connections": [
+    { "from": "users", "to": "browser", "label": "opens" },
+    { "from": "browser", "to": "auth", "label": "renders" },
+    { "from": "auth", "to": "app", "label": "onAuthenticated" },
+    { "from": "app", "to": "settings", "label": "showSettings" },
+    { "from": "app", "to": "videolist", "label": "videos", "labelDy": 24 },
+    { "from": "settings", "to": "channelmanager", "label": "channels" },
+    { "from": "app", "to": "service", "label": "fetch" },
+    { "from": "service", "to": "proxy", "label": "HTTPS + PIN", "variant": "security" },
+    { "from": "service", "to": "storage", "label": "read/write", "variant": "dashed", "labelDy": 24 },
+    { "from": "proxy", "to": "youtube", "label": "API key", "variant": "security" }
+  ],
+  "cards": [
+    { "dot": "cyan", "title": "Frontend", "items": ["React 19 SPA with hooks", "Tailwind CSS dark/light", "Profile-based channel feeds"] },
+    { "dot": "emerald", "title": "Backend", "items": ["Vercel Serverless proxy", "PIN auth + endpoint whitelist", "API key never exposed to client"] },
+    { "dot": "amber", "title": "Data", "items": ["localStorage for profiles/config", "No backend database", "Auto-refresh + migration"] }
+  ]
+}
