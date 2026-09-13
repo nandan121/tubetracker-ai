@@ -44,17 +44,26 @@ export const appConfig: ConfigFile = {
     }
   ],
   /*
-  backup of current Aug 2026
-  console.log(JSON.parse(localStorage.getItem('tubetracker_profiles_v1')||'[]').map(p=>`        name: "${p.name}",\n        channels: [${p.channels.map(c=>'"'+c.handle+'"').join(', ')}]`).join('\n    },\n    {'))
- 
-          name: "AI",
-        channels: ["@aicodeking", "@engineerprompt", "@mervinpraison", "@1littlecoder", "@astrokj", "@theoreticallymedia", "@futurepedia_io", "@realrobtheaiguy", "@creatormagicai", "@aiseeking", "@intheworldofai", "@corbin_brown", "@skillleapai", "@aiexplained-official", "@graceleungyl", "@theaiautomators", "@airevolutionx", "@suryakunju", "@davidondrej", "@webdoze", "@alexfinnofficial", "@codedigiptbiplab", "@theaisearch", "@wesroth", "@mreflow", "@matthew_berman", "@vaibhavsisinty"]
+  backup of current Sept 2026
+
+
+x='\n    {\n'+JSON.parse(localStorage.getItem('tubetracker_profiles_v1')||'[]').map(p=>`        name: "${p.name}",\n        channels: [${p.channels.map(c=>`"${c.handle}"`).join(', ')}]`).join('\n    },\n    {')+'\n    }\n';t=document.createElement('textarea');t.value=x;document.body.append(t);t.select();document.execCommand('copy');t.remove();console.log('%c✅ COPIED TO CLIPBOARD — PASTE NOW','background:#0a0;color:#fff;font-size:18px;font-weight:bold;padding:8px')
+
+
+    {
+        name: "AI",
+        channels: ["@aicodeking", "@engineerprompt", "@mervinpraison", "@1littlecoder", "@astrokj", "@theoreticallymedia", "@futurepedia_io", "@realrobtheaiguy", "@creatormagicai", "@aiseeking", "@intheworldofai", "@corbin_brown", "@skillleapai", "@aiexplained-official", "@graceleungyl", "@theaiautomators", "@airevolutionx", "@suryakunju", "@davidondrej", "@webdoze", "@alexfinnofficial", "@codedigiptbiplab", "@theaisearch", "@wesroth", "@mreflow", "@matthew_berman", "@vaibhavsisinty", "@bulbdigital", "@rezadorrani", "@websitelearners", "@thiojoe", "@manuagi", "@datascienceinyourpocket", "@aiphyox"]
     },
     {        name: "Spiritual",
-        channels: ["@amaravatibuddhistmonastery", "@hillsidehermitage"]
+        channels: ["@amaravatibuddhistmonastery", "@hillsidehermitage", "@samanadipahermitage", "@samanerijayasara"]
     },
     {        name: "Finance",
-        channels: ["@jamesshack", "@pensioncraft"]
+        channels: ["@jamesshack", "@pensioncraft", "@keerthisfinfonri", "@nrimoneywithalok", "@meaningfulmoney", "@damientalksmoney", "@taxationwithcasahiljain", "@nrimoneyclinic", "@nickcrease", "@newmoneyyoutube", "@kirankaurfinance", "@becleverwithyourcash", "@edmundbaileyuk", "@creativeplanning", "@wealthyretirementuk", "@principlespersonalfinance", "@chrisbourne-retirementplanner"]
+    }
+
+
+  
+  
   */
   
   defaultLookbackDays: 5,
